@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="bg-gray-800 text-white w-64 min-h-screen p-4">
+        <nav>
+            <h1 class="text-2xl font-semibold mb-6">Dashboard</h1>
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                        Requests
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        Equipment
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        Users
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+        <h2 class="text-3xl font-bold mb-6">Overview</h2>
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <!-- Pending Requests Card -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-600">Pending Requests</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                </div>
+                <div class="text-2xl font-bold">18</div>
+                <p class="text-xs text-gray-500">3 more than yesterday</p>
+            </div>
+
+            <!-- Total Equipment Assigned Card -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-600">Total Equipment Assigned</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                </div>
+                <div class="text-2xl font-bold">243</div>
+                <p class="text-xs text-gray-500">12 assigned today</p>
+            </div>
+
+            <!-- Number of Users Card -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-600">Number of Users</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <div class="text-2xl font-bold">573</div>
+                <p class="text-xs text-gray-500">+5 from last week</p>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
+

@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>WMSU Property Management Request Form</title>
+    <style>
+        body {
+            font-family: Poppins, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h2, h3 {
+            text-align: center;
+            color: #8B0000;
+        }
+        form {
+            background: #ffffff;
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+        input[type="text"], input[type="date"], input[type="datetime-local"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="radio"], input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        button {
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: auto;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #600000;
+        }
+        #authFile {
+            display: none;
+        }
+        .indirect-request, .document-request {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
+    <script>
+        function toggleFileUpload() {
+            var checkbox = document.getElementById("authLetter");
+            var fileUpload = document.getElementById("authFile");
+            fileUpload.style.display = checkbox.checked ? "block" : "none";
+        }
+    </script>
+</head>
+<body>
+    <h2>Western Mindanao State University<br>Property Management Office</h2>
+    <h3>Zamboanga City</h3>
+    <form>
+        <label>Request No.:</label>
+        <input type="text" name="request_no" value="08-023-23" readonly>
+        <label>Date/Time:</label>
+        <input type="datetime-local" name="request_datetime"><br><br><label>Name:</label>
+    <input type="text" name="surname" placeholder="Surname"> 
+    <input type="text" name="firstname" placeholder="First Name"> 
+    <input type="text" name="middle_initial" placeholder="M.I."><br><br>
+
+    <label>College/Unit:</label>
+    <input type="text" name="college_unit" value="Peace & Human Security Institute" readonly><br><br>
+
+    <label>Category:</label><br>
+    <input type="radio" name="category" value="employee"> Employee
+    <input type="radio" name="category" value="student"> Student
+    <input type="radio" name="category" value="others"> Others (Specify): 
+    <input type="text" name="others_specify"><br><br>
+
+    <label>Purpose of Request:</label><br>
+    <input type="text" name="purpose" value="Annual Inventory of Equipment and Supplies" readonly><br><br>
+
+    <label>Documents Request:</label>
+    <div class="document-request">
+        <label><input type="checkbox" name="documents" value="building_insurance"> Building Insurance</label>
+        <label><input type="checkbox" name="documents" value="list_equipment"> List of Equipment</label>
+        <label><input type="checkbox" name="documents" value="disposal_flowchart"> Flow Chart of Disposal</label>
+        <label><input type="checkbox" name="documents" value="maintenance_flowchart"> Flow Chart of Maintenance</label>
+        <label><input type="checkbox" name="documents" value="org_chart_maintenance"> Organizational Chart of Maintenance</label>
+        <label><input type="checkbox" name="documents" value="others"> Others (Specify): <input type="text" name="documents_specify"></label>
+    </div><br><br>
+
+    <h4>In Case of Indirect Request</h4>
+    <div class="indirect-request">
+        <label>Name/Signature of Representative:</label>
+        <input type="text" name="rep_name">
+        <label>
+            <input type="checkbox" id="authLetter" name="authorization_letter" onclick="toggleFileUpload()"> With Authorization Letter
+        </label>
+        <input type="file" id="authFile" name="auth_file">
+        <label>Date/Time:</label>
+        <input type="datetime-local" name="rep_date_time">
+    </div>
+
+    <label>Name/Signature of Requester:</label>
+    <input type="text" name="requester_name"><br>
+    <label>Date:</label>
+    <input type="date" name="requester_date"><br><br>
+
+    <label>Approved By:</label>
+    <input type="text" name="approved_by" value="Asst. Prof. Ludivina Borja-Pek't" readonly><br>
+    <label>Date:</label>
+    <input type="date" name="approval_date"><br><br>
+
+    <label>Prepared By:</label>
+    <input type="text" name="prepared_by" value="RUBELE S. GANDI" readonly><br>
+    <label>Date:</label>
+    <input type="date" name="prepared_date"><br><br>
+
+    <label>Released By:</label>
+    <input type="text" name="released_by" value="CRISHE MANGANDO" readonly><br>
+    <label>Date:</label>
+    <input type="date" name="released_date"><br><br>
+
+    <label>Received By:</label>
+    <input type="text" name="received_by"><br>
+    <label>Date:</label>
+    <input type="date" name="received_date"><br><br>
+
+    <button type="submit">Submit</button>
+</form>
+
+</body>
+</html>
