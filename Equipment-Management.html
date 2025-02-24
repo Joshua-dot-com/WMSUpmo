@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-800 text-white flex flex-col">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold">Equipment Manager</h1>
+            </div>
+            <nav class="flex-1 px-2 py-4 space-y-2">
+                <a href="#" class="flex items-center px-4 py-2 text-gray-200 hover:bg-gray-700 rounded">
+                    <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 bg-gray-700 rounded">
+                    <i class="fas fa-boxes mr-3"></i> Equipment
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-200 hover:bg-gray-700 rounded">
+                    <i class="fas fa-users mr-3"></i> Users
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">Equipment Management</h2>
+                    <div class="flex space-x-4">
+                        <input type="text" placeholder="Search equipment..." 
+                            class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Add Equipment
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Grid -->
+                <div class="grid grid-cols-3 gap-6">
+                    <!-- Equipment List -->
+                    <div class="col-span-2 bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">Available Equipment</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-gray-200">
+                                        <th class="p-3">ID</th>
+                                        <th class="p-3">Name</th>
+                                        <th class="p-3">Category</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b hover:bg-gray-50">
+                                        <td class="p-3">EQ001</td>
+                                        <td class="p-3">Laptop Dell XPS</td>
+                                        <td class="p-3">Electronics</td>
+                                        <td class="p-3">
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded">Available</span>
+                                        </td>
+                                        <td class="p-3">
+                                            <button class="text-blue-600 hover:underline">Assign</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b hover:bg-gray-50">
+                                        <td class="p-3">EQ002</td>
+                                        <td class="p-3">Projector Epson</td>
+                                        <td class="p-3">Electronics</td>
+                                        <td class="p-3">
+                                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded">Assigned</span>
+                                        </td>
+                                        <td class="p-3">
+                                            <button class="text-blue-600 hover:underline">Transfer</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Assignment Panel -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">Assign/Transfer Equipment</h3>
+                        <form class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Equipment</label>
+                                <select class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option>Select Equipment</option>
+                                    <option>Laptop Dell XPS (EQ001)</option>
+                                    <option>Projector Epson (EQ002)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Assign To</label>
+                                <select class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option>Select User</option>
+                                    <option>John Doe</option>
+                                    <option>Jane Smith</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Transfer From</label>
+                                <input type="text" class="w-full p-2 border rounded" placeholder="Current User" disabled>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button type="button" class="flex-1 bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+                                    Assign
+                                </button>
+                                <button type="button" class="flex-1 bg-green-600 text-white p-2 rounded hover:bg-green-700">
+                                    Transfer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- User Equipment Details -->
+                    <div class="col-span-3 bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">User Equipment Details</h3>
+                        <div class="flex items-center mb-4">
+                            <select class="p-2 border rounded mr-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option>Select User</option>
+                                <option>John Doe</option>
+                                <option>Jane Smith</option>
+                            </select>
+                            <button class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                                View Details
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-medium mb-2">Assigned Equipment</h4>
+                                <ul class="space-y-2">
+                                    <li class="flex justify-between p-2 bg-gray-50 rounded">
+                                        <span>Laptop Dell XPS (EQ001)</span>
+                                        <span class="text-gray-500">Assigned: 2025-02-01</span>
+                                    </li>
+                                    <li class="flex justify-between p-2 bg-gray-50 rounded">
+                                        <span>Monitor 24" (EQ003)</span>
+                                        <span class="text-gray-500">Assigned: 2025-02-15</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-medium mb-2">Equipment History</h4>
+                                <ul class="space-y-2">
+                                    <li class="p-2 bg-gray-50 rounded">
+                                        <p>Projector Epson (EQ002)</p>
+                                        <p class="text-sm text-gray-500">Transferred to Jane Smith - 2025-02-20</p>
+                                    </li>
+                                    <li class="p-2 bg-gray-50 rounded">
+                                        <p>Keyboard (EQ004)</p>
+                                        <p class="text-sm text-gray-500">Returned - 2025-02-10</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
