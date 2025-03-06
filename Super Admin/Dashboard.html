@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3b82f6',
+                            foreground: '#ffffff',
+                        },
+                        destructive: {
+                            DEFAULT: '#ef4444',
+                            foreground: '#ffffff',
+                        },
+                        success: {
+                            DEFAULT: '#22c55e',
+                            foreground: '#ffffff',
+                        },
+                        warning: {
+                            DEFAULT: '#f59e0b',
+                            foreground: '#ffffff',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+       @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+        
+        .badge-success {
+            background-color: #22c55e;
+            color: white;
+        }
+        
+        .badge-warning {
+            background-color: #f59e0b;
+            color: white;
+        }
+        
+        .badge-destructive {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .badge-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <div class="flex min-h-screen">
+    <!-- Sidebar -->
+<aside class="sidebar fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white flex flex-col" id="sidebar">
+    <div class="border-b border-gray-700 py-4 px-4">
+        <div class="flex items-center">
+            <i class="fas fa-clipboard-check text-primary text-xl"></i>
+            <span class="ml-2 text-xl font-bold">Admin Portal</span>
+        </div>
+    </div>
+    <nav class="flex-1 p-4">
+        <ul class="space-y-2">
+            <li>
+                <a href="Dashboard.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="pending-approval.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                    <i class="fas fa-user-check"></i>
+                    <span>Account Approvals</span>
+                </a>
+            </li>
+            <li>
+                <a href="pending-deletion.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                    <i class="fas fa-user-minus"></i>
+                    <span>Account Deletion</span>
+                </a>
+            </li>
+            <li>
+                <a href="history.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+            </li>
+            <li>
+                <a href="users.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="mt-auto p-4 border-t border-gray-700">
+        <button class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white w-full">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </button>
+    </div>
+  </aside>
+  
+        <!-- Main Content -->
+        <div class="flex-1 ml-64">
+            <!-- Header -->
+            <header class="border-b bg-white">
+                <div class="flex h-16 items-center px-6">
+                    <button id="sidebar-toggle" class="md:hidden mr-4">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="text-2xl font-bold">Dashboard</h1>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="p-6">
+                <!-- Stats Cards -->
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div class="bg-white rounded-lg border shadow-sm p-6">
+                        <div class="flex items-center justify-between pb-2">
+                            <div class="text-sm font-medium">Total Users</div>
+                            <i class="fas fa-users text-gray-400"></i>
+                        </div>
+                        <div class="text-2xl font-bold">1,248</div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            +12% from last month
+                        </p>
+                    </div>
+                    <div class="bg-white rounded-lg border shadow-sm p-6">
+                        <div class="flex items-center justify-between pb-2">
+                            <div class="text-sm font-medium">Granted Access</div>
+                            <i class="fas fa-user-check text-gray-400"></i>
+                        </div>
+                        <div class="text-2xl font-bold">1,132</div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            90.7% approval rate
+                        </p>
+                    </div>
+                    <div class="bg-white rounded-lg border shadow-sm p-6">
+                        <div class="flex items-center justify-between pb-2">
+                            <div class="text-sm font-medium">Pending Requests</div>
+                            <i class="fas fa-clock text-gray-400"></i>
+                        </div>
+                        <div class="text-2xl font-bold">23</div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Requires your attention
+                        </p>
+                    </div>
+                    <div class="bg-white rounded-lg border shadow-sm p-6">
+                        <div class="flex items-center justify-between pb-2">
+                            <div class="text-sm font-medium">Rejected Requests</div>
+                            <i class="fas fa-times-circle text-gray-400"></i>
+                        </div>
+                        <div class="text-2xl font-bold">93</div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            7.4% rejection rate
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Activity and Stats -->
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7 mt-4">
+                    <!-- Recent Activity -->
+                    <div class="bg-white rounded-lg border shadow-sm lg:col-span-4">
+                        <div class="p-6 border-b">
+                            <h2 class="text-lg font-semibold">Recent Activity</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <div class="mr-4 rounded-full p-2 bg-green-100">
+                                        <i class="fas fa-check-circle text-green-600"></i>
+                                    </div>
+                                    <div class="flex-1 space-y-1">
+                                        <p class="text-sm font-medium leading-none">
+                                            John Doe was granted access
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            2 minutes ago
+                                        </p>
+                                    </div>
+                                    <span class="badge badge-success">Granted</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="mr-4 rounded-full p-2 bg-red-100">
+                                        <i class="fas fa-times-circle text-red-600"></i>
+                                    </div>
+                                    <div class="flex-1 space-y-1">
+                                        <p class="text-sm font-medium leading-none">
+                                            Jane Smith was rejected
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            15 minutes ago
+                                        </p>
+                                    </div>
+                                    <span class="badge badge-destructive">Rejected</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="mr-4 rounded-full p-2 bg-green-100">
+                                        <i class="fas fa-check-circle text-green-600"></i>
+                                    </div>
+                                    <div class="flex-1 space-y-1">
+                                        <p class="text-sm font-medium leading-none">
+                                            Robert Johnson was granted access
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            45 minutes ago
+                                        </p>
+                                    </div>
+                                    <span class="badge badge-success">Granted</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="mr-4 rounded-full p-2 bg-green-100">
+                                        <i class="fas fa-check-circle text-green-600"></i>
+                                    </div>
+                                    <div class="flex-1 space-y-1">
+                                        <p class="text-sm font-medium leading-none">
+                                            Emily Davis was granted access
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            1 hour ago
+                                        </p>
+                                    </div>
+                                    <span class="badge badge-success">Granted</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="mr-4 rounded-full p-2 bg-red-100">
+                                        <i class="fas fa-times-circle text-red-600"></i>
+                                    </div>
+                                    <div class="flex-1 space-y-1">
+                                        <p class="text-sm font-medium leading-none">
+                                            Michael Wilson was rejected
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            2 hours ago
+                                        </p>
+                                    </div>
+                                    <span class="badge badge-destructive">Rejected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+  // Get the current page's file name from the URL
+  const currentPage = window.location.pathname.split("/").pop();
+
+  // Select all sidebar navigation links
+  const navLinks = document.querySelectorAll("#sidebar nav a");
+
+  navLinks.forEach(link => {
+    // Get the link's destination file name
+    const linkPage = link.getAttribute("href");
+
+    // Check if the current page matches the link's href
+    if (linkPage === currentPage) {
+      // Add active styling (for example, underline and background color)
+      link.classList.add("bg-gray-800", "text-white", "border-b-2", "border-red-500");
+      
+      // Optionally, you can remove the hover styles if needed
+      // link.classList.remove("hover:bg-gray-800", "hover:text-white");
+    }
+  });
+});
+
+    </script>
+</body>
+</html>

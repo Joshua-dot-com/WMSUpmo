@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equipment Maintenance - Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: {
+                        DEFAULT: '#3b82f6',
+                        foreground: '#ffffff',
+                    },
+                    destructive: {
+                        DEFAULT: '#ef4444',
+                        foreground: '#ffffff',
+                    },
+                    success: {
+                        DEFAULT: '#22c55e',
+                        foreground: '#ffffff',
+                    },
+                    warning: {
+                        DEFAULT: '#f59e0b',
+                        foreground: '#ffffff',
+                    }
+                }
+            }
+        }
+    }
+</script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .sidebar {
+        transition: all 0.3s ease;
+    }
+    
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+        .sidebar.active {
+            transform: translateX(0);
+        }
+    }
+    
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 9999px;
+        padding: 0.125rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+    
+    .badge-success {
+        background-color: #22c55e;
+        color: white;
+    }
+    
+    .badge-warning {
+        background-color: #f59e0b;
+        color: white;
+    }
+    
+    .badge-destructive {
+        background-color: #ef4444;
+        color: white;
+    }
+    
+    .badge-secondary {
+        background-color: #6b7280;
+        color: white;
+    }
+    
+    .badge-primary {
+        background-color: #3b82f6;
+        color: white;
+    }
+    
+    .badge-purple {
+        background-color: #8b5cf6;
+        color: white;
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.25rem;
+        padding: 0.5rem 1rem;
+        transition-property: color, background-color, border-color;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .btn-outline:hover {
+        background-color: #f9fafb;
+    }
+    
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2563eb;
+    }
+    
+    .btn-ghost {
+        background-color: transparent;
+        color: #6b7280;
+    }
+    
+    .btn-ghost:hover {
+        background-color: #f9fafb;
+        color: #111827;
+    }
+    
+    .btn-primary-light {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border: 1px solid transparent;
+    }
+    
+    .stat-card {
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        background-color: white;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .stat-title {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6b7280;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #111827;
+        margin-top: 0.5rem;
+    }
+    
+    .stat-desc {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+    }
+    
+    .stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    
+    .modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal-content {
+        background-color: white;
+        border-radius: 0.5rem;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+    }
+    
+    .modal.active .modal-content {
+        transform: scale(1);
+    }
+    
+    .progress-bar {
+        height: 0.5rem;
+        border-radius: 0.25rem;
+        background-color: #e5e7eb;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 0.25rem;
+    }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="flex min-h-screen">
+         <!-- Sidebar -->
+      <aside class="sidebar fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white flex flex-col" id="sidebar">
+        <div class="border-b border-gray-700 py-4 px-4">
+            <div class="flex items-center">
+                <i class="fas fa-clipboard-check text-primary text-xl"></i>
+                <span class="ml-2 text-xl font-bold">Admin Portal</span>
+            </div>
+        </div>
+        <nav class="flex-1 p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="Admin-Dashboard.html" class="flex items-center gap-3 px-3 py-2 rounded-md bg-gray-800 text-white">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="pending-equipment.html" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Pending Requests</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Admin-History.html" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Admin-Profile.html" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                        <i class="fas fa-user-circle"></i>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Admin-settings.html" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="mt-8">
+                <h3 class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    Equipment Management
+                </h3>
+                <ul class="mt-2 space-y-2">
+                    <li>
+                        <a href="Equipment-Management.html" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Manage Equipments</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="Admin-Maintenance.html" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                            <i class="fas fa-tools"></i>
+                            <span>Maintenance</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="mt-auto p-4 border-t border-gray-700">
+            <button class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white w-full">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+
+    <!-- Main Content -->
+    <div class="flex-1 ml-64">
+        <!-- Header -->
+        <header class="border-b bg-white">
+            <div class="flex h-16 items-center justify-between px-6">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="md:hidden mr-4">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="text-2xl font-bold">Equipment Maintenance</h1>
+                </div>
+                <div>
+                    <button id="schedule-maintenance-btn" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus mr-2"></i>
+                        Schedule Maintenance
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="p-6">
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="stat-card">
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="stat-title">Total Equipment</div>
+                            <div class="stat-value">248</div>
+                            <div class="stat-desc">In the system</div>
+                        </div>
+                        <div class="stat-icon bg-blue-50 text-primary">
+                            <i class="fas fa-laptop text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="stat-title">Under Maintenance</div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-desc">Currently being serviced</div>
+                        </div>
+                        <div class="stat-icon bg-purple-50 text-purple-600">
+                            <i class="fas fa-tools text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="stat-title">Needs Repair</div>
+                            <div class="stat-value">8</div>
+                            <div class="stat-desc">Reported issues</div>
+                        </div>
+                        <div class="stat-icon bg-amber-50 text-warning">
+                            <i class="fas fa-exclamation-triangle text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="stat-title">Scheduled</div>
+                            <div class="stat-value">15</div>
+                            <div class="stat-desc">Upcoming maintenance</div>
+                        </div>
+                        <div class="stat-icon bg-green-50 text-success">
+                            <i class="fas fa-calendar-check text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Maintenance Overview -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Maintenance Efficiency -->
+                <div class="bg-white rounded-lg border shadow-sm">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold">Maintenance Efficiency</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium">Average Repair Time</span>
+                                    <span class="text-sm font-medium">2.3 days</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill bg-success" style="width: 75%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium">Maintenance Completion Rate</span>
+                                    <span class="text-sm font-medium">92%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill bg-primary" style="width: 92%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium">Equipment Reliability</span>
+                                    <span class="text-sm font-medium">88%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill bg-warning" style="width: 88%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium">Preventive Maintenance</span>
+                                    <span class="text-sm font-medium">65%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill bg-purple-500" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Maintenance by Type -->
+                <div class="bg-white rounded-lg border shadow-sm">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold">Maintenance by Type</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-primary mr-2"></div>
+                                    <span class="text-sm">Hardware Repair</span>
+                                </div>
+                                <span class="text-sm font-medium">42%</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-success mr-2"></div>
+                                    <span class="text-sm">Software Update</span>
+                                </div>
+                                <span class="text-sm font-medium">28%</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-warning mr-2"></div>
+                                    <span class="text-sm">Preventive Check</span>
+                                </div>
+                                <span class="text-sm font-medium">18%</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-destructive mr-2"></div>
+                                    <span class="text-sm">Battery Replacement</span>
+                                </div>
+                                <span class="text-sm font-medium">8%</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-gray-400 mr-2"></div>
+                                    <span class="text-sm">Other</span>
+                                </div>
+                                <span class="text-sm font-medium">4%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Maintenance -->
+                <div class="bg-white rounded-lg border shadow-sm">
+                    <div class="p-6 border-b flex justify-between items-center">
+                        <h2 class="text-lg font-semibold">Upcoming Maintenance</h2>
+                        <button class="text-primary text-sm font-medium hover:underline">View All</button>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 h-10 w-10 rounded bg-blue-100 flex items-center justify-center text-primary">
+                                    <i class="fas fa-laptop"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">MacBook Pro 16" (ID: LPT-2023-042)</p>
+                                    <p class="text-xs text-gray-500">Software Update</p>
+                                    <p class="text-xs text-gray-400 mt-1">Scheduled: Tomorrow, 10:00 AM</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 h-10 w-10 rounded bg-green-100 flex items-center justify-center text-success">
+                                    <i class="fas fa-desktop"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">Dell XPS 15 (ID: LPT-2022-128)</p>
+                                    <p class="text-xs text-gray-500">Hardware Check</p>
+                                    <p class="text-xs text-gray-400 mt-1">Scheduled: Mar 10, 2:30 PM</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 h-10 w-10 rounded bg-amber-100 flex items-center justify-center text-warning">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">iPhone 15 Pro (ID: PHN-2023-076)</p>
+                                    <p class="text-xs text-gray-500">Battery Replacement</p>
+                                    <p class="text-xs text-gray-400 mt-1">Scheduled: Mar 12, 11:00 AM</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 h-10 w-10 rounded bg-purple-100 flex items-center justify-center text-purple-600">
+                                    <i class="fas fa-tablet-alt"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">iPad Pro (ID: TBL-2022-054)</p>
+                                    <p class="text-xs text-gray-500">Screen Repair</p>
+                                    <p class="text-xs text-gray-400 mt-1">Scheduled: Mar 15, 9:00 AM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Maintenance Table -->
+            <div class="bg-white rounded-lg border shadow-sm">
+                <div class="p-6 border-b flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <h2 class="text-lg font-semibold">Equipment Maintenance Status</h2>
+                    <div class="flex items-center gap-2">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input
+                                type="search"
+                                placeholder="Search equipment..."
+                                class="pl-8 h-10 w-full md:w-[250px] rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                            />
+                        </div>
+                        <button class="btn btn-outline btn-sm">
+                            <i class="fas fa-filter"></i>
+                            <span class="sr-only">Filter</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center gap-4 mb-4 flex-wrap">
+                        <button class="btn btn-primary-light btn-sm">All</button>
+                        <button class="btn btn-outline btn-sm">Working</button>
+                        <button class="btn btn-outline btn-sm">Under Maintenance</button>
+                        <button class="btn btn-outline btn-sm">Needs Repair</button>
+                        <button class="btn btn-outline btn-sm">Scheduled</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="h-12 px-4 text-left font-medium text-gray-500">Equipment ID</th>
+                                    <th class="h-12 px-4 text-left font-medium text-gray-500">Type</th>
+                                    <th class="h-12 px-4 text-left font-medium text-gray-500">Model</th>
+                                    <th class="h-12 px-4 text-left font-medium text-gray-500">Assigned To</th>
+                                    <th class="h-12 px-4 text-left font-medium text-gray-500">Status</th>
+                                    <th class="h-12 px-4 text-left font-medium text-gray-500">Last Maintenance</th>
+                                    <th class="h-12 px-4 text-left font-medium text-gray-500">Next Due</th>
+                                    <th class="h-12 px-4 text-right font-medium text-gray-500">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-medium">LPT-2023-042</td>
+                                    <td class="p-4">Laptop</td>
+                                    <td class="p-4">MacBook Pro 16"</td>
+                                    <td class="p-4">John Doe</td>
+                                    <td class="p-4">
+                                        <span class="badge badge-success">Working</span>
+                                    </td>
+                                    <td class="p-4">Jan 15, 2025</td>
+                                    <td class="p-4">Mar 8, 2025</td>
+                                    <td class="p-4 text-right">
+                                        <button class="btn btn-ghost btn-sm">Details</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-medium">LPT-2022-128</td>
+                                    <td class="p-4">Laptop</td>
+                                    <td class="p-4">Dell XPS 15</td>
+                                    <td class="p-4">Jane Smith</td>
+                                    <td class="p-4">
+                                        <span class="badge badge-success">Working</span>
+                                    </td>
+                                    <td class="p-4">Dec 10, 2024</td>
+                                    <td class="p-4">Mar 10, 2025</td>
+                                    <td class="p-4 text-right">
+                                        <button class="btn btn-ghost btn-sm">Details</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-medium">PHN-2023-076</td>
+                                    <td class="p-4">Phone</td>
+                                    <td class="p-4">iPhone 15 Pro</td>
+                                    <td class="p-4">Robert Johnson</td>
+                                    <td class="p-4">
+                                        <span class="badge badge-warning">Needs Repair</span>
+                                    </td>
+                                    <td class="p-4">Nov 22, 2024</td>
+                                    <td class="p-4">Mar 12, 2025</td>
+                                    <td class="p-4 text-right">
+                                        <button class="btn btn-ghost btn-sm">Details</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-medium">TBL-2022-054</td>
+                                    <td class="p-4">Tablet</td>
+                                    <td class="p-4">iPad Pro 12.9"</td>
+                                    <td class="p-4">Emily Davis</td>
+                                    <td class="p-4">
+                                        <span class="badge badge-warning">Needs Repair</span>
+                                    </td>
+                                    <td class="p-4">Oct 5, 2024</td>
+                                    <td class="p-4">Mar 15, 2025</td>
+                                    <td class="p-4 text-right">
+                                        <button class="btn btn-ghost btn-sm">Details</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-medium">MON-2023-089</td>
+                                    <td class="p-4">Monitor</td>
+                                    <td class="p-4">Dell 27" 4K</td>
+                                    <td class="p-4">Michael Wilson</td>
+                                    <td class="p-4">
+                                        <span class="badge badge-purple">Under Maintenance</span>
+                                    </td>
+                                    <td class="p-4">Feb 18, 2025</td>
+                                    <td class="p-4">Apr 18, 2025</td>
+                                    <td class="p-4 text-right">
+                                        <button class="btn btn-ghost btn-sm">Details</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-medium">LPT-2022-156</td>
+                                    <td class="p-4">Laptop</td>
+                                    <td class="p-4">Lenovo ThinkPad X1</td>
+                                    <td class="p-4">Olivia Brown</td>
+                                    <td class="p-4">
+                                        <span class="badge badge-purple">Under Maintenance</span>
+                                    </td>
+                                    <td class="p-4">Feb 20, 2025</td>
+                                    <td class="p-4">Apr 20, 2025</td>
+                                    <td class="p-4 text-right">
+                                        <button class="btn btn-ghost btn-sm">Details</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-medium">PHN-2023-102</td>
+                                    <td class="p-4">Phone</td>
+                                    <td class="p-4">Samsung Galaxy S23</td>
+                                    <td class="p-4">William Jones</td>
+                                    <td class="p-4">
+                                        <span class="badge badge-secondary">Scheduled</span>
+                                    </td>
+                                    <td class="p-4">Jan 5, 2025</td>
+                                    <td class="p-4">Mar 20, 2025</td>
+                                    <td class="p-4 text-right">
+                                        <button class="btn btn-ghost btn-sm">Details</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="flex flex-col md:flex-row items-center justify-between py-4">
+                        <div class="text-sm text-gray-500 mb-4 md:mb-0">
+                            Showing <strong>1-7</strong> of <strong>35</strong> items
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="btn btn-outline btn-sm">Previous</button>
+                            <button class="btn btn-primary-light btn-sm">1</button>
+                            <button class="btn btn-outline btn-sm">2</button>
+                            <button class="btn btn-outline btn-sm">3</button>
+                            <button class="btn btn-outline btn-sm">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Schedule Maintenance Modal -->
+<div class="modal" id="schedule-maintenance-modal">
+    <div class="modal-content p-6 mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Schedule Maintenance</h3>
+            <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="maintenance-form">
+            <div class="space-y-4">
+                <div>
+                    <label for="equipment-id" class="block text-sm font-medium text-gray-700 mb-1">Equipment ID</label>
+                    <select id="equipment-id" class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                        <option value="">Select equipment</option>
+                        <option value="LPT-2023-042">LPT-2023-042 - MacBook Pro 16"</option>
+                        <option value="LPT-2022-128">LPT-2022-128 - Dell XPS 15</option>
+                        <option value="PHN-2023-076">PHN-2023-076 - iPhone 15 Pro</option>
+                        <option value="TBL-2022-054">TBL-2022-054 - iPad Pro 12.9"</option>
+                        <option value="MON-2023-089">MON-2023-089 - Dell 27" 4K</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="maintenance-type" class="block text-sm font-medium text-gray-700 mb-1">Maintenance Type</label>
+                    <select id="maintenance-type" class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                        <option value="">Select type</option>
+                        <option value="hardware">Hardware Repair</option>
+                        <option value="software">Software Update</option>
+                        <option value="preventive">Preventive Check</option>
+                        <option value="battery">Battery Replacement</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="technician" class="block text-sm font-medium text-gray-700 mb-1">Assigned Technician</label>
+                    <select id="technician" class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                        <option value="">Select technician</option>
+                        <option value="tech1">Alex Johnson - IT Support</option>
+                        <option value="tech2">Maria Garcia - Hardware Specialist</option>
+                        <option value="tech3">David Kim - Software Specialist</option>
+                        <option value="tech4">Sarah Williams - IT Support</option>
+                    </select>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="scheduled-date" class="block text-sm font-medium text-gray-700 mb-1">Scheduled Date</label>
+                        <input type="date" id="scheduled-date" class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" />
+                    </div>
+                    
+                    <div>
+                        <label for="scheduled-time" class="block text-sm font-medium text-gray-700 mb-1">Scheduled Time</label>
+                        <input type="time" id="scheduled-time" class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" />
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="estimated-duration" class="block text-sm font-medium text-gray-700 mb-1">Estimated Duration (hours)</label>
+                    <input type="number" id="estimated-duration" min="0.5" step="0.5" class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" />
+                </div>
+                
+                <div>
+                    <label for="maintenance-notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <textarea id="maintenance-notes" rows="3" class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                
+                <div>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="notify-user" class="rounded border-gray-300 text-primary focus:ring-primary">
+                        <span class="ml-2 text-sm text-gray-700">Notify user about scheduled maintenance</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" id="cancel-btn" class="btn btn-outline">Cancel</button>
+                <button type="submit" class="btn btn-primary">Schedule Maintenance</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Mobile sidebar toggle
+    document.getElementById('sidebar-toggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
+    });
+    
+    // Modal functionality
+    const modal = document.getElementById('schedule-maintenance-modal');
+    const openModalBtn = document.getElementById('schedule-maintenance-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    
+    openModalBtn.addEventListener('click', function() {
+        modal.classList.add('active');
+    });
+    
+    function closeModal() {
+        modal.classList.remove('active');
+    }
+    
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // Form submission
+    document.getElementById('maintenance-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Simulate successful scheduling
+        alert('Maintenance scheduled successfully!');
+        closeModal();
+        
+        // Reset form
+        this.reset();
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+  // Get the current page's file name from the URL
+  const currentPage = window.location.pathname.split("/").pop();
+
+  // Select all sidebar navigation links
+  const navLinks = document.querySelectorAll("#sidebar nav a");
+
+  navLinks.forEach(link => {
+    // Get the link's destination file name
+    const linkPage = link.getAttribute("href");
+
+    // Check if the current page matches the link's href
+    if (linkPage === currentPage) {
+      // Add active styling (for example, underline and background color)
+      link.classList.add("bg-gray-800", "text-white", "border-b-2", "border-red-500");
+      
+      // Optionally, you can remove the hover styles if needed
+      // link.classList.remove("hover:bg-gray-800", "hover:text-white");
+    }
+  });
+});
+</script>
+</body>
+</html>
+
