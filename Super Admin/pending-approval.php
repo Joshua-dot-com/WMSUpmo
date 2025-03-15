@@ -221,43 +221,22 @@
                     </div>
                     <div class="p-6">
                         <div class="overflow-x-auto">
-                            <table class="w-full text-sm">
+                            <table id="pendingAccountsTable" class="min-w-full border-collapse border border-gray-300">
                                 <thead>
-                                    <tr class="border-b">
-                                        <th class="h-12 px-4 text-left font-medium text-gray-500">Name</th>
-                                        <th class="h-12 px-4 text-left font-medium text-gray-500">Email</th>
-                                        <th class="h-12 px-4 text-left font-medium text-gray-500">Department</th>
-                                        <th class="h-12 px-4 text-left font-medium text-gray-500">Requested Role</th>
-                                        <th class="h-12 px-4 text-left font-medium text-gray-500">Sign-up Date</th>
-                                        <th class="h-12 px-4 text-right font-medium text-gray-500">Actions</th>
+                                    <tr>
+                                        <th class="h-12 px-4 font-medium text-gray-600">Name</th>
+                                        <th class="h-12 px-4 font-medium text-gray-600">Email</th>
+                                        <th class="h-12 px-4 font-medium text-gray-600">Department</th>
+                                        <th class="h-12 px-4 font-medium text-gray-600">Requested Role</th>
+                                        <th class="h-12 px-4 font-medium text-gray-600">Sign-up Date</th>
+                                        <th class="h-12 px-4 text-right font-medium text-gray-600">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="border-b hover:bg-gray-50">
-                                        <td class="p-4 font-medium">Thomas Anderson</td>
-                                        <td class="p-4">thomas.anderson@example.com</td>
-                                        <td class="p-4">Engineering</td>
-                                        <td class="p-4">Developer</td>
-                                        <td class="p-4">2023-03-15</td>
-                                        <td class="p-4 text-right">
-                                            <div class="flex justify-end gap-2">
-                                                <button class="btn btn-success btn-sm">
-                                                    <i class="fas fa-check-circle mr-1"></i>
-                                                    Approve
-                                                </button>
-                                                <button class="btn btn-destructive btn-sm">
-                                                    <i class="fas fa-times-circle mr-1"></i>
-                                                    Reject
-                                                </button>
-                                                <button class="btn btn-outline btn-sm">
-                                                    <i class="fas fa-eye mr-1"></i>
-                                                    View
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <!-- Pending accounts will be inserted here -->
                                 </tbody>
                             </table>
+                            
                         </div>
                         <div class="flex items-center justify-end space-x-2 py-4">
                             <button class="btn btn-outline btn-sm">
@@ -273,34 +252,6 @@
         </div>
     </div>
 
-    <script>
-        // Mobile sidebar toggle
-        document.getElementById('sidebar-toggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('active');
-        });
-
-        document.addEventListener("DOMContentLoaded", function () {
-  // Get the current page's file name from the URL
-  const currentPage = window.location.pathname.split("/").pop();
-
-  // Select all sidebar navigation links
-  const navLinks = document.querySelectorAll("#sidebar nav a");
-
-  navLinks.forEach(link => {
-    // Get the link's destination file name
-    const linkPage = link.getAttribute("href");
-
-    // Check if the current page matches the link's href
-    if (linkPage === currentPage) {
-      // Add active styling (for example, underline and background color)
-      link.classList.add("bg-gray-800", "text-white", "border-b-2", "border-red-500");
-      
-      // Optionally, you can remove the hover styles if needed
-      // link.classList.remove("hover:bg-gray-800", "hover:text-white");
-    }
-  });
-});
-
-    </script>
+    <script src="../js/pending-approval.js" defer></script>
 </body>
 </html>
