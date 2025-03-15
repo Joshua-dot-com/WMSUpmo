@@ -154,7 +154,7 @@
                 </a>
             </li>
             <li>
-                <a href="pending-approval.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                <a href="pending-approval.php" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
                     <i class="fas fa-user-check"></i>
                     <span>Account Approvals</span>
                 </a>
@@ -229,6 +229,7 @@
                                         <th class="h-12 px-4 font-medium text-gray-600">Department</th>
                                         <th class="h-12 px-4 font-medium text-gray-600">Requested Role</th>
                                         <th class="h-12 px-4 font-medium text-gray-600">Sign-up Date</th>
+                                        <th class="h-12 px-4 font-medium text-gray-600">Status</th>
                                         <th class="h-12 px-4 text-right font-medium text-gray-600">Actions</th>
                                     </tr>
                                 </thead>
