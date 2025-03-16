@@ -6,7 +6,13 @@
     <title>Signup Form</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
         /* Custom CSS for the dropdown */
         .custom-select {
             appearance: none;
@@ -56,6 +62,16 @@
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans">
     <div class="max-w-md w-full space-y-8">
 
+         <!-- Logo and Title -->
+<div class="text-center mb-8">
+    <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-600 text-white mb-4">
+        <!-- Ensure the path and filename match your project structure -->
+        <img src="./Assets/wmsu.png" alt="Logo" class="h-16 w-16 rounded-full object-cover">
+    </div>
+    <h1 class="text-2xl font-bold text-gray-900">Equipment Management System</h1>
+    <p class="text-gray-600 mt-1 font-bold">Register your account</p>
+</div>
+
         <!-- Signup Card -->
         <div class="bg-white rounded-lg shadow-lg p-8">
             <!-- Signup Form -->
@@ -94,7 +110,7 @@
                             required
                         >
                             <option value="User" selected>User</option>
-                            <option value="Administrative Officials">Administrative Officials</option>
+                            <option value="Administrative">Administrative</option>
                         </select>
                         <!-- Custom arrow -->
                         <div class="select-arrow pointer-events-none absolute right-0 mr-3 text-gray-400">
