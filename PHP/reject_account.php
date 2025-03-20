@@ -8,7 +8,6 @@ use PHPMailer\PHPMailer\Exception;
 header('Content-Type: application/json');
 
 try {
-    // Get the request data
     $data = json_decode(file_get_contents("php://input"), true);
 
     if (!isset($data['id'])) {
@@ -18,7 +17,7 @@ try {
 
     $id = $data['id'];
 
-    // Fetch user role, email, and full name
+    // Fetch user role, email, and name
     $stmt = $conn->prepare("SELECT role, email, CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) AS name FROM users WHERE id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
@@ -33,35 +32,31 @@ try {
     $email = $user['email'];
     $name = $user['name'];
 
-    // For rejected accounts, set is_admin to 0
-    $is_admin = 0;
-
-    // Update user status to "Rejected"
-    $stmt = $conn->prepare("UPDATE users SET status = 'Rejected', is_admin = ? WHERE id = ?");
-    $stmt->bind_param("ii", $is_admin, $id);
+    // Update user status to Rejected
+    $stmt = $conn->prepare("UPDATE users SET status = 'Rejected', is_admin = 0 WHERE id = ?");
+    $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
-        // Send email notification about account rejection
+        // Send rejection email
         try {
             $mail = new PHPMailer(true);
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'wmsuequipment@gmail.com'; // Your Gmail address
-            $mail->Password = 'wrbtdkgykpesnjnn';         // Your App Password (use env variables in production)
+            $mail->Username = 'wmsuequipment@gmail.com';
+            $mail->Password = 'wrbtdkgykpesnjnn'; // Use env variables in production
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
+            $mail->SMTPDebug = 0;
 
             $mail->setFrom('wmsuequipment@gmail.com', 'Admin');
             $mail->addAddress($email, $name);
             $mail->Subject = 'Account Rejected';
-            $mail->Body = "Dear $name,\n\nWe regret to inform you that your account has been rejected. Please contact support for further details.\n\nBest regards,\nAdmin";
+            $mail->Body = "Dear $name,\n\nWe regret to inform you that your account has been rejected. Please contact support for further details.\nBest regards,\WMSU Equipment Admin";
 
-            // Disable debug output for production
-            $mail->SMTPDebug = 0;
             $mail->send();
         } catch (Exception $e) {
-            error_log("Failed to send email to $email: " . $e->getMessage());
+            error_log("Failed to send email: " . $e->getMessage());
         }
 
         echo json_encode(['success' => true, 'message' => 'Account rejected successfully']);

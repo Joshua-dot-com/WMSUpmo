@@ -47,21 +47,47 @@ try {
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'wmsuequipment@gmail.com';
-            $mail->Password = 'wrbtdkgykpesnjnn';  // Use environment variables in production!
+            $mail->Password = 'wrbtdkgykpesnjnn';  // ⛔️ Consider loading this from an environment variable!
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
 
-            $mail->setFrom('wmsuequipment@gmail.com', 'Admin');
+            // Proper headers for deliverability
+            $mail->setFrom('wmsuequipment@gmail.com', 'WMSU Equipment Admin');
+            $mail->addReplyTo('wmsuequipment@gmail.com', 'WMSU Equipment Admin');
             $mail->addAddress($email, $name);
-            $mail->Subject = 'Account Approved';
-            $mail->Body = "Dear $name,\n\nYour account has been approved. You can now log in.\n\nBest regards,\nAdmin";
 
-            // Remove debugging output
+            // Subject
+            $mail->Subject = 'Your Account Has Been Approved ✅';
+
+            // HTML Body (well formatted)
+            $htmlBody = "
+                <html>
+                    <body>
+                        <p>Dear <strong>$name</strong>,</p>
+                        <p>We are pleased to inform you that your account has been <b>approved</b>.</p>
+                        <p>You may now log in and access the system.</p>
+                        <br>
+                        <p>Best regards,<br>WMSU Equipment Admin</p>
+                    </body>
+                </html>";
+
+            // Plain text alternative
+            $plainText = "Dear $name,\n\nYour account has been approved.\n\nYou may now log in and access the system.\n\nBest regards,\nWMSU Equipment Admin";
+
+            // Send as HTML with plain text fallback
+            $mail->isHTML(true);
+            $mail->Body = $htmlBody;
+            $mail->AltBody = $plainText;
+
+            // Lower spam risk by disabling debug output
             $mail->SMTPDebug = 0;
+
+            // Optional: Set high priority (if needed)
+            $mail->Priority = 3;
 
             $mail->send();
         } catch (Exception $e) {
-            error_log("Failed to send email: " . $e->getMessage());
+            error_log("Failed to send email: " . $mail->ErrorInfo);
         }
 
         echo json_encode(['success' => true, 'message' => 'Account approved successfully']);
