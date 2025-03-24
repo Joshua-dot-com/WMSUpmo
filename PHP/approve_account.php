@@ -1,4 +1,4 @@
-<?php
+<?php 
 require 'db_connect.php';
 require '../vendor/autoload.php';
 
@@ -17,8 +17,8 @@ try {
 
     $id = $data['id'];
 
-    // Fetch user role, email, and name
-    $stmt = $conn->prepare("SELECT role, email, CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) AS name FROM users WHERE id = ?");
+    // Fetch user details
+    $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -31,35 +31,66 @@ try {
     $user = $result->fetch_assoc();
     $role = $user['role'];
     $email = $user['email'];
-    $name = $user['name'];
+    $name = $user['first_name'] . ' ' . $user['last_name'];
+    $college = $user['college']; 
+    $admin_role = $user['admin_role'];
 
-    $is_admin = ($role === "Administrative") ? 1 : 0;
+    // ✅ Check role and set is_admin accordingly
+    $is_admin = ($role === "Administrative Officials") ? 1 : 0;
 
-    // Update user status
-    $stmt = $conn->prepare("UPDATE users SET status = 'Granted', is_admin = ? WHERE id = ?");
-    $stmt->bind_param("ii", $is_admin, $id);
+    // If user status is 'Rejected', remove the record first
+    if (strtolower($user['status']) === 'rejected') {
+        $deleteRejected = $conn->prepare("DELETE FROM users WHERE id = ?");
+        $deleteRejected->bind_param("i", $id);
+        $deleteRejected->execute();
+        $deleteRejected->close();
+    } else {
+        // Update user status to 'Granted' and is_admin accordingly
+        $stmt = $conn->prepare("UPDATE users SET status = 'Granted', is_admin = ? WHERE id = ?");
+        $stmt->bind_param("ii", $is_admin, $id);
 
-    if ($stmt->execute()) {
-        // Send email
+        if (!$stmt->execute()) {
+            echo json_encode(['success' => false, 'message' => 'Failed to approve account']);
+            exit;
+        }
+    }
+
+    // ✅ Insert into overview_users with admin_role
+    $insertStmt = $conn->prepare("
+        INSERT INTO overview_users 
+        (first_name, last_name, email, college, role, admin_role, status, last_login, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'Active', ?, NOW())
+    ");
+
+    $insertStmt->bind_param(
+        "sssssss",
+        $user['first_name'],
+        $user['last_name'],
+        $user['email'],
+        $college,
+        $user['role'],
+        $admin_role,
+        $user['last_login']
+    );
+
+    if ($insertStmt->execute()) {
+        // ✅ Send email notification
         try {
             $mail = new PHPMailer(true);
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'wmsuequipment@gmail.com';
-            $mail->Password = 'wrbtdkgykpesnjnn';  // ⛔️ Consider loading this from an environment variable!
+            $mail->Password = 'wrbtdkgykpesnjnn'; // Load from env ideally
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
 
-            // Proper headers for deliverability
             $mail->setFrom('wmsuequipment@gmail.com', 'WMSU Equipment Admin');
             $mail->addReplyTo('wmsuequipment@gmail.com', 'WMSU Equipment Admin');
             $mail->addAddress($email, $name);
 
-            // Subject
             $mail->Subject = 'Your Account Has Been Approved ✅';
 
-            // HTML Body (well formatted)
             $htmlBody = "
                 <html>
                     <body>
@@ -70,19 +101,13 @@ try {
                         <p>Best regards,<br>WMSU Equipment Admin</p>
                     </body>
                 </html>";
-
-            // Plain text alternative
+            
             $plainText = "Dear $name,\n\nYour account has been approved.\n\nYou may now log in and access the system.\n\nBest regards,\nWMSU Equipment Admin";
 
-            // Send as HTML with plain text fallback
             $mail->isHTML(true);
             $mail->Body = $htmlBody;
             $mail->AltBody = $plainText;
-
-            // Lower spam risk by disabling debug output
             $mail->SMTPDebug = 0;
-
-            // Optional: Set high priority (if needed)
             $mail->Priority = 3;
 
             $mail->send();
@@ -90,9 +115,9 @@ try {
             error_log("Failed to send email: " . $mail->ErrorInfo);
         }
 
-        echo json_encode(['success' => true, 'message' => 'Account approved successfully']);
+        echo json_encode(['success' => true, 'message' => 'Account approved and added to overview successfully']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to approve account']);
+        echo json_encode(['success' => false, 'message' => 'Failed to insert into overview_users']);
     }
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);

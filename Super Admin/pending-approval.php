@@ -148,7 +148,7 @@
     <nav class="flex-1 p-4">
         <ul class="space-y-2">
             <li>
-                <a href="Dashboard.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                <a href="Dashboard.php" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -160,19 +160,19 @@
                 </a>
             </li>
             <li>
-                <a href="pending-deletion.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                <a href="pending-deletion.php" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
                     <i class="fas fa-user-minus"></i>
                     <span>Account Deletion</span>
                 </a>
             </li>
             <li>
-                <a href="history.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                <a href="history.php" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
                     <i class="fas fa-history"></i>
                     <span>History</span>
                 </a>
             </li>
             <li>
-                <a href="users.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                <a href="users.php" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
                     <i class="fas fa-users"></i>
                     <span>Users</span>
                 </a>
@@ -228,6 +228,7 @@
                                         <th class="h-12 px-4 font-medium text-gray-600">Email</th>
                                         <th class="h-12 px-4 font-medium text-gray-600">Department</th>
                                         <th class="h-12 px-4 font-medium text-gray-600">Requested Role</th>
+                                        <th class="h-12 px-4 font-medium text-gray-600">Admin Role / Other Services</th>
                                         <th class="h-12 px-4 font-medium text-gray-600">Sign-up Date</th>
                                         <th class="h-12 px-4 font-medium text-gray-600">Status</th>
                                         <th class="h-12 px-4 text-right font-medium text-gray-600">Actions</th>
@@ -253,182 +254,195 @@
         </div>
     </div>
 
+    <div id="toastMessage" class="hidden"></div>
+
     <script>
-         // Mobile sidebar toggle
- document.getElementById('sidebar-toggle').addEventListener('click', function() {
-    document.getElementById('sidebar').classList.toggle('active');
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-// Get the current page's file name from the URL
-const currentPage = window.location.pathname.split("/").pop();
-
-// Select all sidebar navigation links
-const navLinks = document.querySelectorAll("#sidebar nav a");
-
-navLinks.forEach(link => {
-// Get the link's destination file name
-const linkPage = link.getAttribute("href");
-
-// Check if the current page matches the link's href
-if (linkPage === currentPage) {
-// Add active styling (for example, underline and background color)
-link.classList.add("bg-gray-800", "text-white", "border-b-2", "border-red-500");
-
-// Optionally, you can remove the hover styles if needed
-// link.classList.remove("hover:bg-gray-800", "hover:text-white");
-}
-});
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    const tableBody = document.querySelector("#pendingAccountsTable tbody");
-    let currentAction = null;
-    let currentUserId = null;
-
-    // Create modal HTML and append it to the body
-    const modalHTML = `
-        <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-            <div class="bg-white rounded-lg p-6 shadow-lg w-96 text-center">
-                <h2 class="text-lg font-bold text-gray-800" id="modalTitle">Confirm Action</h2>
-                <p class="text-gray-600 my-4" id="modalMessage">Are you sure you want to proceed?</p>
-                <div class="flex justify-center gap-4 mt-4">
-                    <button id="confirmAction" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                        Confirm
-                    </button>
-                    <button id="cancelAction" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div id="toastMessage" class="fixed bottom-5 right-5 hidden bg-green-500 text-white px-4 py-2 rounded shadow-lg">
-        </div>
-    `;
-    document.body.insertAdjacentHTML("beforeend", modalHTML);
-
-    const modal = document.getElementById("confirmationModal");
-    const toast = document.getElementById("toastMessage");
-    const confirmButton = document.getElementById("confirmAction");
-    const cancelButton = document.getElementById("cancelAction");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalMessage = document.getElementById("modalMessage");
-
-    window.showModal = function(action, id) {  // Make showModal global
-        currentAction = action;
-        currentUserId = id;
-
-        modalTitle.textContent = action === "approve" ? "Approve User?" : "Reject User?";
-        modalMessage.textContent = action === "approve" 
-            ? "Are you sure you want to approve this user?" 
-            : "Are you sure you want to reject this user?";
-
-        modal.classList.remove("hidden");
-    };
-
-    function hideModal() {
-        modal.classList.add("hidden");
-        currentAction = null;
-        currentUserId = null;
-    }
-
-    function showToast(message, color = "bg-green-500") {
-        toast.textContent = message;
-        toast.className = `fixed bottom-5 right-5 text-white px-4 py-2 rounded shadow-lg ${color}`;
-        toast.classList.remove("hidden");
-
-        setTimeout(() => {
-            toast.classList.add("hidden");
-        }, 3000);
-    }
-
-    function fetchAccounts() {
-        fetch("../PHP/fetch_pending_accounts.php")
-            .then(response => response.json())
-            .then(data => {
-                console.log("Fetched Data:", data);
-                if (!data.success) {
-                    console.error("Error from server:", data.message);
-                    return;
-                }
-                if (!Array.isArray(data.data)) {
-                    console.error("Invalid data format received:", data);
-                    return;
-                }
-    
-                tableBody.innerHTML = "";
-                data.data.forEach(account => {
-                    const row = document.createElement("tr");
-                    row.classList.add("border-b", "hover:bg-gray-50", "text-sm", "text-gray-700");
-                    row.setAttribute("data-id", account.id);
-    
-                    const buttonVisibility = (account.status === "Granted" || account.status === "Rejected") ? "hidden" : "";
-    
-                    row.innerHTML = `
-                        <td class="p-4 font-semibold text-gray-800">${account.first_name} ${account.last_name}</td>
-                        <td class="p-4 text-gray-600">${account.email}</td>
-                        <td class="p-4 text-gray-600">${account.college}</td>
-                        <td class="p-4 text-gray-600 capitalize">${account.role}</td>
-                        <td class="p-4 text-gray-500">${account.created_at}</td>
-                        <td class="p-4 status font-medium ${account.status === 'Granted' ? 'text-green-600' : account.status === 'Rejected' ? 'text-red-600' : 'text-yellow-600'}">${account.status}</td>
-                        <td class="p-4 text-right">
-                            <div class="flex justify-end gap-2 action-buttons ${buttonVisibility}">
-                                <button class="bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition duration-200" 
-                                    onclick="showModal('approve', ${account.id})">
-                                    <i class="fas fa-check-circle mr-2"></i> Approve
-                                </button>
-                                <button class="bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition duration-200" 
-                                    onclick="showModal('reject', ${account.id})">
-                                    <i class="fas fa-times-circle mr-2"></i> Reject
-                                </button>
-                            </div>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            })
-            .catch(error => console.error("Error fetching accounts:", error));
-    }
-    
-
-    confirmButton.addEventListener("click", function () {
-        if (!currentAction || !currentUserId) return;
-
-        const url = currentAction === "approve" ? "../PHP/approve_account.php" : "../PHP/reject_account.php";
-        const statusUpdate = currentAction === "approve" ? "Granted" : "Rejected";
-        const successMessage = currentAction === "approve" ? "User Approved Successfully" : "User Rejected Successfully";
-
-        fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: currentUserId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateRowStatus(currentUserId, statusUpdate);
-                showToast(successMessage);
-            } else {
-                showToast("Action failed!", "bg-red-500");
-            }
-        })
-        .catch(error => console.error("Error processing request:", error))
-        .finally(() => hideModal());
+    // Mobile sidebar toggle
+    document.getElementById('sidebar-toggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
     });
 
-    cancelButton.addEventListener("click", hideModal);
+    document.addEventListener("DOMContentLoaded", function () {
+        // Highlight Active Sidebar Link
+        const currentPage = window.location.pathname.split("/").pop();
+        const navLinks = document.querySelectorAll("#sidebar nav a");
+        navLinks.forEach(link => {
+            const linkPage = link.getAttribute("href");
+            if (linkPage === currentPage) {
+                link.classList.add("bg-gray-800", "text-white", "border-b-2", "border-red-500");
+            }
+        });
 
-    function updateRowStatus(id, newStatus) {
-        const row = document.querySelector(`tr[data-id="${id}"]`);
-        if (row) {
-            row.querySelector(".status").textContent = newStatus;
-            row.querySelector(".action-buttons").classList.add("hidden");
+        // Spinner Modal
+        const spinnerModal = document.createElement("div");
+        spinnerModal.id = "spinnerModal";
+        spinnerModal.className = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden";
+        spinnerModal.innerHTML = `
+            <div class="flex flex-col items-center">
+                <svg class="animate-spin h-12 w-12 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <p class="mt-4 text-white font-semibold">Loading...</p>
+            </div>`;
+        document.body.appendChild(spinnerModal);
+
+        const tableBody = document.querySelector("#pendingAccountsTable tbody");
+        const toast = document.createElement("div");
+        toast.id = "toastMessage";
+        toast.className = "fixed bottom-5 right-5 hidden bg-green-500 text-white px-4 py-2 rounded shadow-lg";
+        document.body.appendChild(toast);
+
+        // Confirmation Modal
+        const modalHTML = `
+            <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+                <div class="bg-white rounded-lg p-6 shadow-lg w-96 text-center">
+                    <h2 class="text-lg font-bold text-gray-800" id="modalTitle">Confirm Action</h2>
+                    <p class="text-gray-600 my-4" id="modalMessage">Are you sure you want to proceed?</p>
+                    <div class="flex justify-center gap-4 mt-4">
+                        <button id="confirmAction" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-green-600">Confirm</button>
+                        <button id="cancelAction" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+                    </div>
+                </div>
+            </div>`;
+        document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+        const modal = document.getElementById("confirmationModal");
+        const confirmButton = document.getElementById("confirmAction");
+        const cancelButton = document.getElementById("cancelAction");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalMessage = document.getElementById("modalMessage");
+
+        let currentAction = null;
+        let currentUserId = null;
+
+        // Show Spinner
+        function showSpinner() { spinnerModal.classList.remove("hidden"); }
+        function hideSpinner() { spinnerModal.classList.add("hidden"); }
+
+        // Toast Notification
+        function showToast(message, color = "bg-green-500") {
+            toast.textContent = message;
+            toast.className = `fixed bottom-5 right-5 text-white px-4 py-2 rounded shadow-lg ${color}`;
+            toast.classList.remove("hidden");
+            setTimeout(() => { toast.classList.add("hidden"); }, 3000);
         }
-    }
 
-    fetchAccounts();
+        // Show Modal globally
+        window.showModal = function (action, id) {
+            currentAction = action;
+            currentUserId = id;
+            modalTitle.textContent = action === "approve" ? "Approve User?" : "Reject User?";
+            modalMessage.textContent = action === "approve"
+                ? "Are you sure you want to approve this user?"
+                : "Are you sure you want to reject this user?";
+            modal.classList.remove("hidden");
+        };
+
+        // Hide Modal
+        function hideModal() {
+            modal.classList.add("hidden");
+            currentAction = null;
+            currentUserId = null;
+        }
+
+        // Toast function for success/error messages
+function showToast(message, color = "bg-green-500") {
+    let toast = document.getElementById("toastMessage");
+    toast.textContent = message;
+    toast.className = `fixed top-5 right-5 text-white px-6 py-3 rounded shadow-lg ${color} z-50`;
+    toast.classList.remove("hidden");
+
+    setTimeout(() => {
+        toast.classList.add("hidden");
+    }, 3000);
+}
+
+// Fetch Accounts Function
+function fetchAccounts() {
+    showSpinner();
+    fetch("../PHP/fetch_pending_accounts.php")
+        .then(response => response.json())
+        .then(data => {
+            tableBody.innerHTML = "";
+            if (!data.success || !Array.isArray(data.data)) {
+                console.error("Error fetching data or invalid format");
+                return;
+            }
+
+            data.data.forEach(account => {
+                const row = document.createElement("tr");
+                row.classList.add("border-b", "hover:bg-gray-50", "text-sm", "text-gray-700");
+                const buttonVisibility = (account.status === "Granted" || account.status === "Rejected") ? "hidden" : "";
+                const statusClass = account.status === 'Granted' ? 'bg-green-600 text-white'
+                    : account.status === 'Rejected' ? 'bg-red-600 text-white'
+                        : 'bg-yellow-600 text-white';
+                const adminRoleDisplay = account.admin_role?.trim() ? account.admin_role : "-";
+                const createdAt = new Date(account.created_at);
+                const formattedDate = `${createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })},<br>${createdAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+
+                row.innerHTML = `
+                    <td class="p-4 font-medium text-gray-800">${account.first_name} ${account.last_name}</td>
+                    <td class="p-4 text-gray-600">${account.email}</td>
+                    <td class="p-4 text-gray-600">${account.college}</td>
+                    <td class="p-4 text-gray-600 capitalize">${account.role}</td>
+                    <td class="p-4 text-gray-600">${adminRoleDisplay}</td>
+                    <td class="p-4 text-gray-600">${formattedDate}</td>
+                    <td class="p-4">
+                        <span class="${statusClass} px-4 py-1 rounded-full text-xs font-semibold status">${account.status}</span>
+                    </td>
+                    <td class="p-4 text-right">
+                        <div class="flex items-center gap-6 ${buttonVisibility} action-buttons">
+                            <svg onclick="showModal('approve', ${account.id})" class="w-8 h-8 text-green-500 cursor-pointer hover:scale-125 hover:text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            <svg onclick="showModal('reject', ${account.id})" class="w-8 h-8 text-red-500 cursor-pointer hover:scale-125 hover:text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                        </div>
+                    </td>`;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error("Fetch error:", error))
+        .finally(() => hideSpinner());
+}
+
+confirmButton.addEventListener("click", function () {
+    if (!currentAction || !currentUserId) return;
+    const url = currentAction === "approve" ? "../PHP/approve_account.php" : "../PHP/reject_account.php";
+
+    showSpinner();
+    fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: currentUserId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const toastColor = currentAction === "approve" ? "bg-green-500" : "bg-red-500";
+            showToast(`User ${currentAction}d successfully!`, toastColor);
+            fetchAccounts(); // Refresh table
+        } else {
+            showToast(data.message || "Action failed", "bg-red-500");
+        }
+    })
+    .catch(() => showToast("An error occurred", "bg-red-500"))
+    .finally(() => {
+        hideSpinner();
+        hideModal();
+    });
 });
 
-    </script>
+// Cancel Button Click (to hide modal)
+cancelButton.addEventListener("click", hideModal);
+
+// Initial fetch of pending accounts
+fetchAccounts();
+});
+</script>
+
+
 </body>
 </html>

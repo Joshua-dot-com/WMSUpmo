@@ -129,32 +129,32 @@
     </div>
     <nav class="flex-1 p-4">
         <ul class="space-y-2">
-            <li>
-                <a href="Dashboard.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+        <li>
+                <a href="Dashboard.php" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
             <li>
-                <a href="pending-approval.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                <a href="pending-approval.php" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
                     <i class="fas fa-user-check"></i>
                     <span>Account Approvals</span>
                 </a>
             </li>
             <li>
-                <a href="pending-deletion.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                <a href="pending-deletion.php" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
                     <i class="fas fa-user-minus"></i>
                     <span>Account Deletion</span>
                 </a>
             </li>
             <li>
-                <a href="history.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                <a href="history.php" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
                     <i class="fas fa-history"></i>
                     <span>History</span>
                 </a>
             </li>
             <li>
-                <a href="users.html" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
+                <a href="users.php" class="nav-btn flex items-center gap-3 px-3 py-2 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white">
                     <i class="fas fa-users"></i>
                     <span>Users</span>
                 </a>

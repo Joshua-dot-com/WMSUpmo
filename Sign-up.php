@@ -318,14 +318,14 @@
         <div class="text-center mt-6">
             <p class="text-sm text-black-600">
                 Already have an account? 
-                <a href="Login.html" class="font-medium text-red-600 hover:underline">Sign in</a>
+                <a href="Login.php" class="font-medium text-red-600 hover:underline">Sign in</a>
             </p>
         </div>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-    // Get all form elements
+document.addEventListener("DOMContentLoaded", function () {
+    // Elements
     const roleSelect = document.getElementById("roleSelect");
     const collegeFieldContainer = document.getElementById("collegeFieldContainer");
     const collegeSelect = document.getElementById("collegeSelect");
@@ -336,82 +336,114 @@
     const passwordInput = document.getElementById("password");
     const confirmPasswordInput = document.getElementById("confirm-password");
     const passwordStrengthText = document.getElementById("password-strength-text");
+    const passwordStrengthBar = document.getElementById("password-strength-bar");
     const passwordMatchText = document.getElementById("password-match-text");
+    const togglePasswordBtn = document.getElementById("toggle-password");
+    const signupForm = document.getElementById("signup-form");
 
-    // Role selection logic
-    roleSelect.addEventListener("change", function () {
-        if (this.value === "Administrative Officials") {
-            collegeFieldContainer.classList.add("hidden");
-            collegeSelect.removeAttribute("required");
+    // Password requirement indicators
+    const reqLength = document.getElementById("req-length");
+    const reqUppercase = document.getElementById("req-uppercase");
+    const reqLowercase = document.getElementById("req-lowercase");
+    const reqNumber = document.getElementById("req-number");
+    const reqSpecial = document.getElementById("req-special");
 
-            adminRolesContainer.classList.remove("hidden");
-            adminRolesSelect.setAttribute("required", "");
-        } else {
-            collegeFieldContainer.classList.remove("hidden");
-            collegeSelect.setAttribute("required", "");
+    // Role change logic
+    roleSelect?.addEventListener("change", function () {
+        const isAdmin = this.value === "Administrative Officials";
+        collegeFieldContainer.classList.toggle("hidden", isAdmin);
+        adminRolesContainer.classList.toggle("hidden", !isAdmin);
+        collegeSelect.toggleAttribute("required", !isAdmin);
+        adminRolesSelect.toggleAttribute("required", isAdmin);
 
-            adminRolesContainer.classList.add("hidden");
-            adminRolesSelect.removeAttribute("required");
-
+        if (!isAdmin) {
             otherServicesContainer.classList.add("hidden");
             otherServicesInput.removeAttribute("required");
         }
     });
 
-    // Administrative roles selection logic
-    adminRolesSelect.addEventListener("change", function () {
-        if (this.value === "Other Services") {
-            otherServicesContainer.classList.remove("hidden");
-            otherServicesInput.setAttribute("required", "");
-        } else {
-            otherServicesContainer.classList.add("hidden");
-            otherServicesInput.removeAttribute("required");
-        }
+    // Admin role change logic
+    adminRolesSelect?.addEventListener("change", function () {
+        const isOtherServices = this.value === "Other Services";
+        otherServicesContainer.classList.toggle("hidden", !isOtherServices);
+        otherServicesInput.toggleAttribute("required", isOtherServices);
     });
 
     // Toggle password visibility
-    document.getElementById("toggle-password").addEventListener("click", function () {
+    togglePasswordBtn?.addEventListener("click", function () {
         const icon = this.querySelector("i");
-        passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+        const isPasswordVisible = passwordInput.type === "text";
+        passwordInput.type = isPasswordVisible ? "password" : "text";
+        confirmPasswordInput.type = isPasswordVisible ? "password" : "text";
         icon.classList.toggle("fa-eye");
         icon.classList.toggle("fa-eye-slash");
     });
 
     // Password strength checker
     function checkPasswordStrength(password) {
-        let strength = "Weak";
         if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) {
-            strength = "Strong";
+            return "Strong";
         } else if (password.length >= 6) {
-            strength = "Medium";
+            return "Medium";
         }
-        return strength;
+        return "Weak";
     }
 
-    passwordInput.addEventListener("input", function () {
-        passwordStrengthText.textContent = "Password strength: " + checkPasswordStrength(passwordInput.value);
-    });
+    // Update password requirements check
+    function validatePasswordRequirements(password) {
+        toggleRequirement(reqLength, password.length >= 8);
+        toggleRequirement(reqUppercase, /[A-Z]/.test(password));
+        toggleRequirement(reqLowercase, /[a-z]/.test(password));
+        toggleRequirement(reqNumber, /[0-9]/.test(password));
+        toggleRequirement(reqSpecial, /[^A-Za-z0-9]/.test(password));
+    }
 
-    // Check if passwords match
-    confirmPasswordInput.addEventListener("input", function () {
-        if (confirmPasswordInput.value === passwordInput.value) {
-            passwordMatchText.textContent = "Passwords match";
-            passwordMatchText.classList.add("text-green-500");
-            passwordMatchText.classList.remove("text-red-500");
+    // Toggle color on requirement indicators
+    function toggleRequirement(element, isMet) {
+        element.classList.toggle("text-green-500", isMet);
+        element.classList.toggle("text-gray-500", !isMet);
+    }
+
+    // Password strength & requirement check live
+    passwordInput?.addEventListener("input", function () {
+        const password = passwordInput.value;
+        const strength = checkPasswordStrength(password);
+        passwordStrengthText.textContent = "Password strength: " + strength;
+
+        // Update text color
+        passwordStrengthText.classList.remove("text-green-500", "text-yellow-500", "text-red-500");
+        if (strength === "Strong") {
+            passwordStrengthText.classList.add("text-green-500");
+        } else if (strength === "Medium") {
+            passwordStrengthText.classList.add("text-yellow-500");
         } else {
-            passwordMatchText.textContent = "Passwords do not match";
-            passwordMatchText.classList.add("text-red-500");
-            passwordMatchText.classList.remove("text-green-500");
+            passwordStrengthText.classList.add("text-red-500");
         }
+
+        // Update progress bar
+        if (passwordStrengthBar) {
+            passwordStrengthBar.style.width = strength === "Strong" ? "100%" : (strength === "Medium" ? "66%" : "33%");
+            passwordStrengthBar.style.backgroundColor = strength === "Strong" ? "#10b981" : (strength === "Medium" ? "#f59e0b" : "#ef4444");
+        }
+
+        // Validate requirements
+        validatePasswordRequirements(password);
     });
 
-    // Handle form submission
-    document.getElementById("signup-form").addEventListener("submit", function (e) {
+    // Password match check
+    confirmPasswordInput?.addEventListener("input", function () {
+        const isMatch = confirmPasswordInput.value === passwordInput.value;
+        passwordMatchText.textContent = isMatch ? "Passwords match" : "Passwords do not match";
+        passwordMatchText.classList.toggle("text-green-500", isMatch);
+        passwordMatchText.classList.toggle("text-red-500", !isMatch);
+    });
+
+    // Form submission with validation
+    signupForm?.addEventListener("submit", function (e) {
         e.preventDefault();
-        
-        // Check if passwords match before submitting
+
         if (passwordInput.value !== confirmPasswordInput.value) {
-            alert("Passwords do not match!");
+            alert("⚠️ Passwords do not match!");
             return;
         }
 
@@ -424,12 +456,15 @@
         .then(data => {
             alert(data.message);
             if (data.success) {
-                window.location.href = "Login.html";
+                signupForm.reset(); // Optional: Reset the form after success
+                window.location.href = "Login.php";
             }
         })
         .catch(error => console.error("Error:", error));
     });
 });
-    </script>
+</script>
+
+
 </body>
 </html>
