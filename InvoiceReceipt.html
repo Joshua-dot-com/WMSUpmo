@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Invoice Receipt of Property</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      padding: 30px;
+    }
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .header h2, .header h3 {
+      margin: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    .signature-section td {
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2 style="color: crimson; display: inline;">WESTERN MINDANAO STATE UNIVERSITY</h2>
+      <h3>Property Management Office<br />Zamboanga City</h3>
+      <h3>INVOICE RECEIPT OF PROPERTY</h3>
+    </div>
+
+    <p style="text-align: right;"><strong>Date:</strong> <input type="text" placeholder="April 2, 2025" /></p>
+
+    <p><strong>From:</strong> <input type="text" placeholder="Name of Previous Custodian" /> to <input type="text" placeholder="Name of New Custodian" /></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>QTY</th>
+          <th>ARTICLE</th>
+          <th>DESCRIPTION</th>
+          <th>PROPERTY NUMBER</th>
+          <th>ACCOUNT CODE</th>
+          <th>UNIT VALUE</th>
+          <th>TOTAL VALUE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="number" placeholder="1" /></td>
+          <td><input type="text" placeholder="Article name" /></td>
+          <td><input type="text" placeholder="Detailed description here..." /></td>
+          <td><input type="text" placeholder="Property No." /></td>
+          <td><input type="text" placeholder="Account Code" /></td>
+          <td><input type="text" placeholder="0.00" /></td>
+          <td><input type="text" placeholder="0.00" /></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="signature-section" style="margin-top: 40px;">
+      <table>
+        <tr>
+          <td colspan="2">I HEREBY CERTIFY that I have this <input type="text" placeholder="2nd day of April 2025" /> </td>
+        </tr>
+        <tr>
+          <td><strong>Received from:</strong> <input type="text" placeholder="Previous Custodian Name" /></td>
+          <td><strong>Invoiced to:</strong> <input type="text" placeholder="New Custodian Name" /></td>
+        </tr>
+        <tr>
+          <td>The above listed articles/property</td>
+          <td>The above listed articles/property</td>
+        </tr>
+        <tr>
+          <td><strong><input type="text" placeholder="Signature of Recipient" /></strong></td>
+          <td><strong><input type="text" placeholder="Signature of Issuer" /></strong></td>
+        </tr>
+        <tr>
+          <td>Signature over printed name of Invoicing Accountable Officer</td>
+          <td>Signature over printed name of Invoicing Accountable Officer</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

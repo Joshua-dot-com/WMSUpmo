@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventory Custodian Slip</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      padding: 30px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h2,
+    .header h3 {
+      margin: 5px;
+    }
+
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    input[type="number"]:read-only {
+      background-color: #f5f5f5;
+    }
+
+    .note-section,
+    .signature-section {
+      margin-top: 30px;
+      font-size: 14px;
+    }
+
+    .note-section p {
+      margin: 8px 0;
+    }
+
+    .signature-section table td {
+      padding: 10px;
+    }
+
+    #grand-total {
+      font-weight: bold;
+      font-size: 16px;
+    }
+  </style>
+  <script>
+    function updateTotal(row) {
+      let qty = document.querySelector(`#qty-${row}`).value;
+      let amount = document.querySelector(`#amount-${row}`).value;
+      let total = (qty * amount).toFixed(2);
+      document.querySelector(`#total-${row}`).value = total;
+      updateGrandTotal();
+    }
+
+    function updateGrandTotal() {
+      let total1 = parseFloat(document.querySelector("#total-1").value) || 0;
+      let total2 = parseFloat(document.querySelector("#total-2").value) || 0;
+      document.querySelector("#grand-total").innerText = "P " + (total1 + total2).toFixed(2);
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2 style="color: crimson; display: inline;">WESTERN MINDANAO STATE UNIVERSITY</h2>
+      <h3>Property Management Office<br />Zamboanga City</h3>
+      <h3>Inventory Custodian Slip</h3>
+    </div>
+
+    <p><strong>ICS No:</strong> <input type="text" placeholder="Enter ICS Number" /></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>QTY</th>
+          <th>UNIT</th>
+          <th>ARTICLE</th>
+          <th>DESCRIPTION</th>
+          <th>ACCOUNT CODE</th>
+          <th>INVENTORY ITEM NO.</th>
+          <th>ESTIMATED USEFUL LIFE</th>
+          <th>AMOUNT</th>
+          <th>TOTAL AMOUNT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="number" id="qty-1" value="1" min="1" onchange="updateTotal(1)" /></td>
+          <td><input type="text" placeholder="e.g., piece" /></td>
+          <td><input type="text" placeholder="e.g., Headset" /></td>
+          <td><input type="text" placeholder="Enter description" /></td>
+          <td><input type="text" placeholder="e.g., 2-02-01-050" /></td>
+          <td><input type="text" placeholder="Enter Inventory No." /></td>
+          <td><input type="text" placeholder="e.g., 1 year" /></td>
+          <td><input type="number" id="amount-1" value="0.00" step="0.01" onchange="updateTotal(1)" /></td>
+          <td><input type="number" id="total-1" value="0.00" readonly /></td>
+        </tr>
+        <tr>
+          <td><input type="number" id="qty-2" value="1" min="1" onchange="updateTotal(2)" /></td>
+          <td><input type="text" placeholder="e.g., piece" /></td>
+          <td><input type="text" placeholder="e.g., Flash Drive" /></td>
+          <td><input type="text" placeholder="Enter description" /></td>
+          <td><input type="text" placeholder="e.g., 2-02-01-050" /></td>
+          <td><input type="text" placeholder="Enter Inventory No." /></td>
+          <td><input type="text" placeholder="e.g., 1 year" /></td>
+          <td><input type="number" id="amount-2" value="0.00" step="0.01" onchange="updateTotal(2)" /></td>
+          <td><input type="number" id="total-2" value="0.00" readonly /></td>
+        </tr>
+        <tr>
+          <td colspan="8" style="text-align: right;"><strong>TOTAL:</strong></td>
+          <td><span id="grand-total">P 0.00</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note-section">
+      <p><strong>NOTE:</strong></p>
+      <p>
+        <input type="text" placeholder="Additional to Existing ICS / Other Notes" />
+      </p>
+      <p><strong>Delivery Details:</strong></p>
+      <p>
+        Inv. No.: <input type="text" placeholder="e.g., 08899" />&nbsp;&nbsp;&nbsp;
+        D.R.: <input type="text" placeholder="e.g., 11318" />
+      </p>
+    </div>
+
+    <div class="signature-section">
+      <table>
+        <tr>
+          <td>Received by:</td>
+          <td>Received from:</td>
+        </tr>
+        <tr>
+          <td><strong><input type="text" placeholder="Name of Recipient" /></strong></td>
+          <td><strong><input type="text" placeholder="Name of Property Officer" /></strong></td>
+        </tr>
+        <tr>
+          <td>Signature Over Printed Name</td>
+          <td>Signature Over Printed Name</td>
+        </tr>
+        <tr>
+          <td><input type="text" placeholder="Position/Office" /></td>
+          <td><input type="text" placeholder="Position/Office" /></td>
+        </tr>
+        <tr>
+          <td>Position/Office</td>
+          <td>Office</td>
+        </tr>
+        <tr>
+          <td><input type="text" placeholder="Date (e.g., April 2, 2025)" /></td>
+          <td><input type="text" placeholder="Date (e.g., April 2, 2025)" /></td>
+        </tr>
+        <tr>
+          <td>Date</td>
+          <td>Date</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
