@@ -1,0 +1,11 @@
+Running PHP script at 14/04/2025  5:19:19.86 
+Inactive accounts updated successfully.Script finished at 14/04/2025  5:19:19.99 
+Running PHP script at 16/04/2025  5:09:37.48 
+Could not open input file: C:\xampp\htdocs\PMO\run_inactive_check.php
+Script finished at 16/04/2025  5:09:38.88 
+Running PHP script at 18/04/2025  5:09:37.90 
+Could not open input file: C:\xampp\htdocs\PMO\run_inactive_check.php
+Script finished at 18/04/2025  5:09:38.15 
+Running PHP script at 06/05/2025  5:09:37.69 
+Could not open input file: C:\xampp\htdocs\PMO\run_inactive_check.php
+Script finished at 06/05/2025  5:09:39.44 

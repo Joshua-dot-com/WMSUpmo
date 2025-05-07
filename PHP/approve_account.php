@@ -1,4 +1,6 @@
-<?php 
+<?php
+session_start(); // Start session to access logged-in admin
+
 require 'db_connect.php';
 require '../vendor/autoload.php';
 
@@ -7,117 +9,131 @@ use PHPMailer\PHPMailer\Exception;
 
 header('Content-Type: application/json');
 
-try {
-    $data = json_decode(file_get_contents("php://input"), true);
+// 1) Ensure an admin is logged in
+if (!isset($_SESSION['admin'])) {
+    echo json_encode(['success' => false, 'message' => 'Unauthorized: Admin not logged in']);
+    exit;
+}
 
+// 2) Fetch reviewer name
+$adminData = $_SESSION['admin'];
+$adminId   = $adminData['id']; 
+$adminQ    = $conn->prepare("SELECT first_name, last_name FROM admin WHERE id = ?");
+$adminQ->bind_param("i", $adminId);
+$adminQ->execute();
+$res = $adminQ->get_result();
+if ($res->num_rows === 0) {
+    echo json_encode(['success' => false, 'message' => 'Reviewer not found']);
+    exit;
+}
+$adminRow   = $res->fetch_assoc();
+$reviewedBy = $adminRow['first_name'] . ' ' . $adminRow['last_name'];
+
+try {
+    // 3) Decode incoming JSON
+    $data = json_decode(file_get_contents("php://input"), true);
     if (!isset($data['id'])) {
         echo json_encode(['success' => false, 'message' => 'Invalid request']);
         exit;
     }
+    $id = intval($data['id']);
 
-    $id = $data['id'];
+    // 4) Read desired accessType: "admin" or "user"
+    $accessType = isset($data['accessType']) && $data['accessType'] === 'admin'
+                ? 'admin'
+                : 'user';
+    $is_admin = ($accessType === 'admin') ? 1 : 0;
 
-    // Fetch user details
+    // 5) Fetch the user
     $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows === 0) {
+    $userRes = $stmt->get_result();
+    if ($userRes->num_rows === 0) {
         echo json_encode(['success' => false, 'message' => 'User not found']);
         exit;
     }
-
-    $user = $result->fetch_assoc();
-    $role = $user['role'];
-    $email = $user['email'];
-    $name = $user['first_name'] . ' ' . $user['last_name'];
-    $college = $user['college']; 
+    $user = $userRes->fetch_assoc();
+    $email    = $user['email'];
+    $name     = $user['first_name'] . ' ' . $user['last_name'];
+    $college  = $user['college'];
     $admin_role = $user['admin_role'];
+    $password   = $user['password'];  // already hashed if you used password_hash()
 
-    // ✅ Check role and set is_admin accordingly
-    $is_admin = ($role === "Administrative Officials") ? 1 : 0;
+    // 6) Prevent duplicate in overview_users
+    $emailCheck = $conn->prepare("SELECT id FROM overview_users WHERE email = ?");
+    $emailCheck->bind_param("s", $email);
+    $emailCheck->execute();
+    if ($emailCheck->get_result()->num_rows > 0) {
+        echo json_encode(['success' => false, 'message' => 'The email is already in use.']);
+        exit;
+    }
 
-    // If user status is 'Rejected', remove the record first
+    // 7) If user was previously "rejected", delete them so we can re-create
     if (strtolower($user['status']) === 'rejected') {
-        $deleteRejected = $conn->prepare("DELETE FROM users WHERE id = ?");
-        $deleteRejected->bind_param("i", $id);
-        $deleteRejected->execute();
-        $deleteRejected->close();
+        $del = $conn->prepare("DELETE FROM users WHERE id = ?");
+        $del->bind_param("i", $id);
+        $del->execute();
+        $del->close();
     } else {
-        // Update user status to 'Granted' and is_admin accordingly
-        $stmt = $conn->prepare("UPDATE users SET status = 'Granted', is_admin = ? WHERE id = ?");
-        $stmt->bind_param("ii", $is_admin, $id);
-
-        if (!$stmt->execute()) {
+        // 8) Otherwise, update status to "Granted", set is_admin & reviewed_by
+        $upd = $conn->prepare("
+            UPDATE users
+            SET status     = 'Granted',
+                is_admin   = ?,
+                reviewed_by= ?
+            WHERE id = ?
+        ");
+        $upd->bind_param("isi", $is_admin, $reviewedBy, $id);
+        if (!$upd->execute()) {
             echo json_encode(['success' => false, 'message' => 'Failed to approve account']);
             exit;
         }
+        $upd->close();
     }
 
-    // ✅ Insert into overview_users with admin_role
-    $insertStmt = $conn->prepare("
-        INSERT INTO overview_users 
-        (first_name, last_name, email, college, role, admin_role, status, last_login, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, 'Active', ?, NOW())
-    ");
+    // 9) Send approval email
+    try {
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'wmsuequipment@gmail.com';
+        $mail->Password   = 'wjgsuitdayyvyosu';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port       = 587;
 
-    $insertStmt->bind_param(
-        "sssssss",
-        $user['first_name'],
-        $user['last_name'],
-        $user['email'],
-        $college,
-        $user['role'],
-        $admin_role,
-        $user['last_login']
-    );
+        $mail->setFrom('wmsuequipment@gmail.com', 'WMSU Equipment Admin');
+        $mail->addAddress($email, $name);
+        $mail->Subject    = 'Your Account Has Been Approved ✅';
+        $mail->isHTML(true);
 
-    if ($insertStmt->execute()) {
-        // ✅ Send email notification
-        try {
-            $mail = new PHPMailer(true);
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'wmsuequipment@gmail.com';
-            $mail->Password = 'wrbtdkgykpesnjnn'; // Load from env ideally
-            $mail->SMTPSecure = 'tls';
-            $mail->Port = 587;
+        $mail->Body = "
+          <p>Dear <strong>$name</strong>,</p>
+          <p>Your account has been <strong>approved</strong> by <strong>$reviewedBy</strong>.</p>
+          <p>Your access level is: <strong>" . ucfirst($accessType) . " Access</strong>.</p>
+          <p>You may now log in and access the system.</p>
+          <br><p>Best regards,<br>WMSU Equipment Admin</p>
+        ";
+        $mail->AltBody = "Dear $name,\n\n"
+                       . "Your account has been approved by $reviewedBy.\n"
+                       . "Your access level is: " . ucfirst($accessType) . " Level Access.\n\n"
+                       . "You may now log in and access the system.\n\n"
+                       . "Best regards,\nWMSU Equipment Admin";
 
-            $mail->setFrom('wmsuequipment@gmail.com', 'WMSU Equipment Admin');
-            $mail->addReplyTo('wmsuequipment@gmail.com', 'WMSU Equipment Admin');
-            $mail->addAddress($email, $name);
+        $mail->send();
+    } catch (Exception $e) {
+        error_log("Email send failed: " . $mail->ErrorInfo);
+    }
 
-            $mail->Subject = 'Your Account Has Been Approved ✅';
+    echo json_encode(['success' => true, 'message' => 'Account approved successfully']);
+    exit;
 
-            $htmlBody = "
-                <html>
-                    <body>
-                        <p>Dear <strong>$name</strong>,</p>
-                        <p>We are pleased to inform you that your account has been <b>approved</b>.</p>
-                        <p>You may now log in and access the system.</p>
-                        <br>
-                        <p>Best regards,<br>WMSU Equipment Admin</p>
-                    </body>
-                </html>";
-            
-            $plainText = "Dear $name,\n\nYour account has been approved.\n\nYou may now log in and access the system.\n\nBest regards,\nWMSU Equipment Admin";
-
-            $mail->isHTML(true);
-            $mail->Body = $htmlBody;
-            $mail->AltBody = $plainText;
-            $mail->SMTPDebug = 0;
-            $mail->Priority = 3;
-
-            $mail->send();
-        } catch (Exception $e) {
-            error_log("Failed to send email: " . $mail->ErrorInfo);
-        }
-
-        echo json_encode(['success' => true, 'message' => 'Account approved and added to overview successfully']);
+} catch (mysqli_sql_exception $e) {
+    if ($e->getCode() === 1062) {
+        echo json_encode(['success' => false, 'message' => 'The email is already in use.']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to insert into overview_users']);
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
     }
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);

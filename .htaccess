@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteRule ^Admin$ admin_redirect.php [L]
+
+# Redirect /Login to /Login.php
+RewriteRule ^Login$ Login.php [L]   
