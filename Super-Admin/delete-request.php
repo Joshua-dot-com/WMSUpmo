@@ -59,7 +59,7 @@ try {
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'wmsuequipment@gmail.com'; // Sender email
-            $mail->Password = 'wjgsuitdayyvyosu';       // App password (not Gmail password)
+            $mail->Password = 'wjgsuitdayyvyosu';       // App password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
@@ -93,7 +93,13 @@ try {
     }
     $stmt->close();
 
-    // Delete from users
+    // Delete related equipment history rows first to satisfy FK constraint
+    $stmt = $conn->prepare("DELETE FROM equipment_history WHERE to_user_id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->close();
+
+    // Now delete user
     $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();

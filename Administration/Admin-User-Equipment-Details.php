@@ -513,7 +513,7 @@ document.addEventListener("DOMContentLoaded", function () {
   </script>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+ document.addEventListener("DOMContentLoaded", () => {
   // DOM Elements - with null checks
   const usersList = document.getElementById("users-list")
   const usersLoading = document.getElementById("users-loading")
@@ -631,7 +631,7 @@ document.addEventListener("DOMContentLoaded", function () {
       })
   }
 
-  // Fetch equipment history for a user
+  // Fetch equipment history for a user (updated to use new endpoint)
   function fetchUserEquipmentHistory(userId) {
     return fetch(`fetch_user_equipment_history.php?user_id=${userId}`)
       .then((response) => {
@@ -836,8 +836,8 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-start">
               <h4 class="text-sm font-medium text-gray-900">${item.equipment_name || "Unnamed Equipment"}</h4>
-              <button class="return-equipment-btn px-2 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200" data-id="${item.assignment_id}" data-equipment-id="${item.equipment_id}">
-              </button>
+             <span class="return-equipment-btn px-2 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200" data-id="${item.assignment_id}" data-equipment-id="${item.equipment_id}">
+              </span>
             </div>
             <p class="text-xs text-gray-500">${item.property_number || "No Property Number"} | ${item.category || "Uncategorized"}</p>
             <p class="text-xs text-gray-500 mt-1">Assigned: ${formattedAssignmentDate || "Unknown date"}</p>
@@ -875,7 +875,7 @@ document.addEventListener("DOMContentLoaded", function () {
     })
   }
 
-  // Render equipment history
+  // Render equipment history - UPDATED to handle different statuses
   function renderEquipmentHistory(history) {
     console.log("Rendering equipment history:", history)
 
@@ -902,7 +902,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Format dates
       let formattedAssignmentDate = item.assigned_at || item.assignment_date
-      let formattedReturnDate = item.returned_at
+      let formattedDispositionDate = item.disposition_date || item.returned_at
 
       try {
         const assignmentDate = new Date(item.assigned_at || item.assignment_date)
@@ -914,9 +914,9 @@ document.addEventListener("DOMContentLoaded", function () {
           })
         }
 
-        const returnDate = new Date(item.returned_at)
-        if (!isNaN(returnDate.getTime())) {
-          formattedReturnDate = returnDate.toLocaleDateString("en-US", {
+        const dispositionDate = new Date(item.disposition_date || item.returned_at)
+        if (!isNaN(dispositionDate.getTime())) {
+          formattedDispositionDate = dispositionDate.toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -924,6 +924,53 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       } catch (e) {
         console.error("Error formatting date:", e)
+      }
+
+      // Determine status badge and icon based on equipment_disposition
+      let statusBadge = ""
+      let statusIcon = ""
+      
+      if (item.equipment_disposition === "RETURNED") {
+        statusBadge = `
+          <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+            <i class="fas fa-check-circle mr-1"></i> Returned
+          </span>
+        `
+        statusIcon = `<i class="fas fa-calendar-minus text-blue-500 mr-1"></i>`
+      } else if (item.equipment_disposition === "TRANSFERRED") {
+        statusBadge = `
+          <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
+            <i class="fas fa-exchange-alt mr-1"></i> Transferred
+          </span>
+        `
+        statusIcon = `<i class="fas fa-exchange-alt text-purple-500 mr-1"></i>`
+      } else {
+        statusBadge = `
+          <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+            <i class="fas fa-question-circle mr-1"></i> Unknown
+          </span>
+        `
+        statusIcon = `<i class="fas fa-calendar-times text-gray-500 mr-1"></i>`
+      }
+
+      // Get transfer details if available
+      let transferDetails = ""
+      if (item.equipment_disposition === "TRANSFERRED" && item.transfer_details && item.transfer_details.to_user_name) {
+        transferDetails = `
+          <p class="text-xs text-purple-600 mt-1">
+            <i class="fas fa-user-arrow-right mr-1"></i> Transferred to: ${item.transfer_details.to_user_name}
+          </p>
+        `
+      }
+
+      // Get duration if available
+      let durationInfo = ""
+      if (item.assignment_duration && item.assignment_duration.formatted) {
+        durationInfo = `
+          <p class="text-xs text-gray-500 mt-1">
+            <i class="fas fa-clock text-gray-500 mr-1"></i> Duration: ${item.assignment_duration.formatted}
+          </p>
+        `
       }
 
       card.innerHTML = `
@@ -934,9 +981,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-start">
               <h4 class="text-sm font-medium text-gray-900">${item.equipment_name || "Unnamed Equipment"}</h4>
-              <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                <i class="fas fa-check-circle mr-1"></i> Returned
-              </span>
+              ${statusBadge}
             </div>
             <p class="text-xs text-gray-500">${item.property_number || "No Property Number"} | ${item.category || "Uncategorized"}</p>
             <div class="flex flex-wrap gap-x-4 mt-1">
@@ -944,10 +989,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 <i class="fas fa-calendar-plus text-green-500 mr-1"></i> Assigned: ${formattedAssignmentDate || "Unknown"}
               </p>
               <p class="text-xs text-gray-500">
-                <i class="fas fa-calendar-minus text-red-500 mr-1"></i> Returned: ${formattedReturnDate || "Unknown"}
+                ${statusIcon} ${item.equipment_disposition === "RETURNED" ? "Returned" : "Transferred"}: ${formattedDispositionDate || "Unknown"}
               </p>
             </div>
-            ${item.return_notes ? `<p class="text-xs text-gray-600 mt-2 bg-gray-50 p-2 rounded">${item.return_notes}</p>` : ""}
+            ${durationInfo}
+            ${transferDetails}
+            <p class="text-xs text-gray-600 mt-2 bg-gray-50 p-2 rounded">${item.status_description || ""}</p>
+            ${item.return_notes ? `<p class="text-xs text-gray-600 mt-2 bg-gray-50 p-2 rounded">Return notes: ${item.return_notes}</p>` : ""}
             ${item.notes ? `<p class="text-xs text-gray-600 mt-2 bg-gray-50 p-2 rounded">Assignment notes: ${item.notes}</p>` : ""}
           </div>
         </div>

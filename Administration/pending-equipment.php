@@ -663,6 +663,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </div>
 
 
+<div id="notes-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white w-11/12 md:w-1/2 rounded-xl p-6 shadow-lg relative">
+    <button onclick="document.getElementById('notes-modal').classList.add('hidden')" 
+            class="absolute top-2 right-3 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+    <h2 class="text-lg font-semibold mb-4 text-gray-800">Notes</h2>
+    <p id="notes-modal-content" class="text-gray-700 whitespace-pre-line"></p>
+  </div>
+</div>
+
+
 <!-- Loading Spinner Overlay -->
 <div id="loading-spinner" style="
     display: none;
@@ -677,7 +687,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         width: 50px;
         height: 50px;
         border: 6px solid #ccc;
-        border-top: 6px solid #007bff;
+        border-top: 6px solidrgb(190, 31, 19);
         border-radius: 50%;
         animation: spin 1s linear infinite;
     "></div>
@@ -2222,14 +2232,28 @@ function initEquipmentHistory() {
   <td class="p-4 text-gray-500 text-sm whitespace-nowrap">
     ${formatDate(item.action_date)}
   </td>
-  <td class="p-4 text-gray-700">
-    <span class="block max-w-xs truncate" title="${item.notes || item.reason || 'N/A'}">
-      ${item.notes || item.reason || 'N/A'}
-    </span>
-  </td>
+  <td class="p-4 text-gray-700 whitespace-nowrap">
+  ${item.notes && item.notes.length > 30 ? `
+    <button class="text-blue-600 underline text-sm view-more-btn" 
+            data-notes="${encodeURIComponent(item.notes)}">
+      View More
+    </button>` 
+    : `<span class="text-sm">${item.notes || item.reason || 'N/A'}</span>`}
+</td>
+
 `;
 
-            
+// Delegate modal open events to the parent table
+document.querySelector('.bg-white.rounded-lg.shadow-sm.p-6.mt-6 table tbody').addEventListener('click', function(event) {
+    const button = event.target.closest('.view-more-btn');
+    if (button) {
+        const notes = decodeURIComponent(button.getAttribute('data-notes'));
+        const modalContent = document.getElementById('notes-modal-content');
+        modalContent.textContent = notes;
+        document.getElementById('notes-modal').classList.remove('hidden');
+    }
+});
+       
             equipmentHistoryTable.appendChild(row);
         });
     }

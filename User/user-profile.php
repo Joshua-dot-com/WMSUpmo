@@ -606,11 +606,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 const user = data.updated_user;
-                document.querySelector('#profile-card h3').textContent = `${user.first_name} ${user.last_name}`;
-                document.querySelector('#profile-card .email').textContent = user.email;
-                document.querySelector('#profile-card .college').textContent = user.college;
-                document.querySelector('#profile-card .role').textContent = user.role;
-                document.querySelector('#profile-card .created-at').textContent = new Date(user.created_at).toLocaleDateString();
+                // Update profile card with new user data
+                updateProfileCard(user);
             } else {
                 alert('Update failed: ' + data.error);
             }
@@ -631,33 +628,48 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Fetch profile data
     fetch('get-profile.php')
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                const user = data.data;
-                const img = user.profile_picture || 'https://randomuser.me/api/portraits/men/41.jpg';
-                profilePreview.src = img;
-                originalProfileImage = img;
+    .then(res => res.json())
+    .then(data => {
+        if (data.success && data.data) {
+            const user = data.data;
+            const img = user.profile_picture || 'https://randomuser.me/api/portraits/men/41.jpg';
+            profilePreview.src = img;
+            originalProfileImage = img;
 
-                document.querySelector('#profile-card h3').textContent = `${user.first_name} ${user.last_name}`;
-                document.querySelector('#profile-card .email').textContent = user.email;
-                document.querySelector('#profile-card .college').textContent = user.college;
-                document.querySelector('#profile-card .role').textContent = user.role;
-                document.querySelector('#profile-card .created-at').textContent = new Date(user.created_at).toLocaleDateString();
-
-                // Pre-fill form
-                document.getElementById('first-name').value = user.first_name;
-                document.getElementById('last-name').value = user.last_name;
-                document.getElementById('email').value = user.email;
-                document.getElementById('college').value = user.college;
+            // Check if user object has the necessary fields
+            if (user.first_name && user.last_name && user.email) {
+                updateProfileCard(user);
+                prefillProfileForm(user);
             } else {
-                alert('Failed to load profile: ' + data.error);
+                console.error('User data is missing required fields.');
+                alert('Error: User data is incomplete.');
             }
-        })
-        .catch(err => {
-            console.error('Profile fetch error:', err);
-            alert('An error occurred while loading the profile.');
-        });
+        } else {
+            console.error('Failed to load profile:', data.error);
+            alert('Failed to load profile: ' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error('Profile fetch error:', err);
+        alert('An error occurred while loading the profile.');
+    });
+
+    // Update the profile card with fetched data
+    function updateProfileCard(user) {
+        document.querySelector('#profile-card h3').textContent = `${user.first_name} ${user.last_name}`;
+        document.querySelector('#profile-card .email').textContent = user.email;
+        document.querySelector('#profile-card .college').textContent = user.college;
+        document.querySelector('#profile-card .role').textContent = user.role || 'Not Provided';
+        document.querySelector('#profile-card .created-at').textContent = new Date(user.created_at).toLocaleDateString();
+    }
+
+    // Pre-fill the profile form with fetched data
+    function prefillProfileForm(user) {
+        document.getElementById('first-name').value = user.first_name;
+        document.getElementById('last-name').value = user.last_name;
+        document.getElementById('email').value = user.email;
+        document.getElementById('college').value = user.college;
+    }
 
     // Fetch equipment stats
     fetch('get_equipment_stats.php')
@@ -686,18 +698,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     // Alternating row colors
                     row.className = `border-b transition-colors duration-200 hover:bg-red-50 ${index % 2 === 0 ? 'bg-white' : 'bg-red-50/30'}`;
                     row.innerHTML = `
-    <td class="h-12 px-6 text-sm text-gray-900">${item.po_jo_no ?? '-'}</td> <!-- Equipment ID -->
-    <td class="h-12 px-6 text-sm text-gray-900">${item.equipment_name ?? '-'}</td> <!-- Type -->
-    <td class="h-12 px-6 text-sm text-gray-900">${item.assigned_at ? new Date(item.assigned_at).toLocaleString() : '-'}</td> <!-- Assigned Date -->
-    <td class="h-12 px-6 text-sm text-gray-900">${item.returned_at ? new Date(item.returned_at).toLocaleString() : '-'}</td> <!-- Return Date -->
-    <td class="h-12 px-6 text-sm">
-        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-            Returned
-        </span>
-    </td>
-`;
-body.appendChild(row);
-
+                        <td class="h-12 px-6 text-sm text-gray-900">${item.po_jo_no ?? '-'}</td>
+                        <td class="h-12 px-6 text-sm text-gray-900">${item.equipment_name ?? '-'}</td>
+                        <td class="h-12 px-6 text-sm text-gray-900">${item.assigned_at ? new Date(item.assigned_at).toLocaleString() : '-'}</td>
+                        <td class="h-12 px-6 text-sm text-gray-900">${item.returned_at ? new Date(item.returned_at).toLocaleString() : '-'}</td>
+                        <td class="h-12 px-6 text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                Returned
+                            </span>
+                        </td>
+                    `;
+                    body.appendChild(row);
                 });
             } else {
                 console.error('History load error:', data.error);
@@ -719,19 +730,19 @@ body.appendChild(row);
                     // Alternating row colors
                     row.className = `border-b transition-colors duration-200 hover:bg-red-50 ${index % 2 === 0 ? 'bg-white' : 'bg-red-50/30'}`;
                     row.innerHTML = `
-                   
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.po_jo_no}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.equipment_name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.category}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.assigned_at}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        item.equipment_status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }">
-                        ${item.equipment_status}
-                    </span>
-                </td>`;
-                body.appendChild(row);
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.po_jo_no}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.equipment_name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.category}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.assigned_at}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                item.equipment_status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }">
+                                ${item.equipment_status}
+                            </span>
+                        </td>
+                    `;
+                    body.appendChild(row);
                 });
             } else {
                 console.error('Current equipment load error:', data.error);
@@ -742,6 +753,5 @@ body.appendChild(row);
         });
 });
 </script>
-
 </body>
 </html>

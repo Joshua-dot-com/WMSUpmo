@@ -26,31 +26,30 @@ $userId = $_SESSION['user_id'];
 
 try {
     $stmt = $pdo->prepare("
-    SELECT 
-        ue.id AS user_equipment_id,
-        ue.user_id,
-        ue.equipment_id,
-        e.po_jo_no,
-        e.property_number,
-        e.category,
-        e.equipment_name,
-        e.status AS equipment_status,
-        ue.assigned_at,
-        ue.returned_at,
-        ue.notes,
-        ue.is_pending_transfer
-    FROM 
-        user_equipment ue
-    JOIN 
-        equipment e ON ue.equipment_id = e.id
-    WHERE 
-        ue.user_id = :user_id
-        AND ue.returned_at IS NULL
-        -- allow pending transfers by removing filter
-    ORDER BY 
-        ue.assigned_at DESC
-");
-
+        SELECT 
+            ue.id AS user_equipment_id,
+            ue.user_id,
+            ue.equipment_id,
+            e.po_jo_no,
+            e.property_number,
+            e.category,
+            e.equipment_name,
+            e.status AS equipment_status,
+            ue.assigned_at,
+            ue.returned_at,
+            ue.notes
+        FROM 
+            user_equipment ue
+        JOIN 
+            equipment e ON ue.equipment_id = e.id
+        WHERE 
+            ue.user_id = :user_id
+            AND ue.returned_at IS NULL
+            AND ue.is_pending_transfer = 0
+            AND e.is_pending_transfer = 0
+        ORDER BY 
+            ue.assigned_at DESC
+    ");
     $stmt->execute(['user_id' => $userId]);
     $equipment = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

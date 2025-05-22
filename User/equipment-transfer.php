@@ -1097,7 +1097,7 @@ if (currentStep === 1) {
 // Fetch current equipment
 async function fetchAndPopulateCurrentEquipment() {
   try {
-    const response = await fetch('get_current_equipment.php');
+    const response = await fetch('get-current-equipment-transfer.php');
     if (!response.ok) throw new Error('Failed to fetch current equipment');
     const { equipment } = await response.json(); // equipment is the correct key
 

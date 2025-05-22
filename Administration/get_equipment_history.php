@@ -56,7 +56,7 @@ $query = "
         users u1 ON h.from_user_id = u1.id
     LEFT JOIN 
         users u2 ON h.to_user_id = u2.id
-    WHERE 1=1
+    WHERE h.po_jo_no IS NOT NULL AND h.po_jo_no != ''
 ";
 
 $countQuery = "
@@ -65,12 +65,12 @@ $countQuery = "
     LEFT JOIN equipment e ON h.equipment_id = e.id
     LEFT JOIN users u1 ON h.from_user_id = u1.id
     LEFT JOIN users u2 ON h.to_user_id = u2.id
-    WHERE 1=1
+    WHERE h.po_jo_no IS NOT NULL AND h.po_jo_no != ''
 ";
 
 $params = [];
 
-// Add search condition if provided
+// Search condition
 if (!empty($search)) {
     $searchCondition = "
         AND (

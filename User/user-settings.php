@@ -680,26 +680,21 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                // Show success modal
-                showSuccessModal('Password updated successfully!');
-                this.reset();
-                strengthBar.style.width = '0%';
-                strengthText.textContent = 'Password strength: Enter a new password';
-                matchText.textContent = '';
-                [reqLength, reqUppercase, reqLowercase, reqNumber, reqSpecial].forEach(req => {
-                    req.classList.remove('text-green-500');
-                    req.querySelector('i').className = 'fas fa-circle text-xs';
-                });
-            } else {
-                // Show error modal with server error message
-                showErrorModal('Error: ' + data.message);
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            showErrorModal('An error occurred while updating the password.');
+    if (data.success) {
+        showSuccessModal(data.message || 'Password updated successfully!');
+        this.reset();
+        strengthBar.style.width = '0%';
+        strengthText.textContent = 'Password strength: Enter a new password';
+        matchText.textContent = '';
+        [reqLength, reqUppercase, reqLowercase, reqNumber, reqSpecial].forEach(req => {
+            req.classList.remove('text-green-500');
+            req.querySelector('i').className = 'fas fa-circle text-xs';
         });
+    } else {
+        showErrorModal(data.message || 'An unknown error occurred.');
+    }
+})
+
     });
 
     // Function to show success modal
@@ -821,40 +816,6 @@ window.closeSuccessModal = function () {
         showErrorModal('An error occurred while processing your request.');
     });
 });
-
-
-// Function to close the error modal
-window.closeCustomErrorModal = function () {
-    const modal = document.querySelector('.custom-error-modal');
-    if (modal) {
-        modal.classList.remove('active');
-        modal.remove();
-    }
-};
-
-// Function to show the error modal with the message
-function showErrorModal(message) {
-    // Create the modal content
-    const errorModal = document.createElement('div');
-    errorModal.classList.add('custom-error-modal', 'modal', 'active');
-    errorModal.innerHTML = `
-        <div class="modal-content p-6 mx-4">
-            <div class="text-center mb-4">
-                <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 text-red-600 mb-4">
-                    <i class="fas fa-exclamation-triangle text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-bold text-gray-900">Error</h3>
-                <p class="text-sm text-gray-500 mt-2">${message}</p>
-            </div>
-            <div class="flex justify-end gap-3">
-                <button class="btn btn-outline" onclick="closeCustomErrorModal()">Close</button>
-            </div>
-        </div>
-    `;
-    
-    // Append the modal to the body
-    document.body.appendChild(errorModal);
-}
 
    // Highlight current sidebar link with red theme
    const currentPage = window.location.pathname.split("/").pop();

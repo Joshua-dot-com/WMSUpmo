@@ -16,8 +16,24 @@ if ($conn->connect_error) {
 // Set headers to allow cross-origin requests (optional, remove if not needed)
 header('Content-Type: application/json');
 
-// Prepare the SQL query to fetch all equipment details
-$query = "SELECT id, po_jo_no, equipment_name, property_number, account_code, purchase_date, ris_no, oblig_no, units, category, description, status, created_at, updated_at FROM equipment";
+// Get the equipment ID from the URL parameter
+if (isset($_GET['id'])) {
+    $equipmentId = $_GET['id'];
+    
+    // Sanitize the input to prevent SQL injection
+    $equipmentId = $conn->real_escape_string($equipmentId);
+    
+    // Prepare the SQL query to fetch specific equipment details
+    $query = "SELECT id, po_jo_no, equipment_name, property_number, account_code, purchase_date, ris_no, oblig_no, units, category, description, status, created_at, updated_at FROM equipment WHERE id = '$equipmentId'";
+} else {
+    // If no ID is provided, return an error
+    echo json_encode([
+        'success' => false,
+        'message' => 'No equipment ID provided'
+    ]);
+    $conn->close();
+    exit;
+}
 
 // Execute the query
 $result = $conn->query($query);
@@ -30,9 +46,6 @@ if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         // Decode HTML entities to get the original description
         $description = html_entity_decode($row['description']); // Decode HTML entities
-
-        // Optionally, limit the description length for the snippet
-        $descriptionSnippet = strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description;
 
         $equipment[] = [
             'id' => $row['id'],
@@ -58,10 +71,10 @@ if ($result->num_rows > 0) {
         'data' => $equipment
     ]);
 } else {
-    // No equipment found
+    // No equipment found with the given ID
     echo json_encode([
         'success' => false,
-        'message' => 'No equipment found in the database'
+        'message' => "Equipment with ID $equipmentId not found"
     ]);
 }
 

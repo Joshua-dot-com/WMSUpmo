@@ -451,13 +451,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="bg-white rounded-lg border shadow-sm lg:col-span-2" id="equipment-chart-card">
                 <div class="p-6 border-b flex justify-between items-center">
                     <h2 class="text-lg font-semibold text-gray-800">Equipment Distribution</h2>
-                    <div class="flex gap-2">
-                        <button class="btn btn-outline btn-sm" id="equipment-view-toggle">Monthly</button>
-                        <button class="btn btn-outline btn-sm" id="equipment-chart-download">
-                            <i class="fas fa-download"></i>
-                            <span class="sr-only">Download</span>
-                        </button>
-                    </div>
+                   
                 </div>
                 <div class="p-6">
                     <canvas id="equipmentChart" height="250"></canvas>
@@ -749,7 +743,7 @@ fetch('get-activity.php')
       }
       
       if (activity.is_pending_transfer === "1") {
-        message += " - Pending Transfer";
+        message += " - Transfer";
         statusColor = 'bg-purple-500';
       }
 

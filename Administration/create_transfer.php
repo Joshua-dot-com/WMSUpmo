@@ -1,6 +1,10 @@
 <?php
 // create_transfer.php
 
+require '../vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 // Database connection parameters
 $host = "localhost";
 $user = "root";
@@ -46,29 +50,19 @@ if (!empty($errors)) {
 try {
     $successCount = 0;
     $failedItems = [];
+    $transferredEquipments = [];
 
     foreach ($equipmentIds as $equipmentId) {
-        // Fetch equipment details
-        $fetchStmt = $pdo->prepare("
-            SELECT po_jo_no
-            FROM equipment
-            WHERE id = :equipment_id
-        ");
+        $fetchStmt = $pdo->prepare("SELECT equipment_name, po_jo_no, property_number FROM equipment WHERE id = :equipment_id");
         $fetchStmt->execute(['equipment_id' => $equipmentId]);
         $equipment = $fetchStmt->fetch(PDO::FETCH_ASSOC);
 
         if ($equipment) {
+            $equipmentName = $equipment['equipment_name'];
             $poJoNo = $equipment['po_jo_no'];
+            $propertyNumber = $equipment['property_number'];
 
-            // Update the user_equipment ownership and set is_pending_transfer = 1
-            $updateStmt = $pdo->prepare("
-                UPDATE user_equipment
-                SET user_id = :new_owner_id,
-                    is_pending_transfer = 1
-                WHERE equipment_id = :equipment_id
-                  AND user_id = :current_owner_id
-                  AND returned_at IS NULL
-            ");
+            $updateStmt = $pdo->prepare("UPDATE user_equipment SET user_id = :new_owner_id, is_pending_transfer = 1 WHERE equipment_id = :equipment_id AND user_id = :current_owner_id AND returned_at IS NULL");
             $updateStmt->execute([
                 'new_owner_id' => $newOwnerId,
                 'equipment_id' => $equipmentId,
@@ -76,13 +70,7 @@ try {
             ]);
 
             if ($updateStmt->rowCount() > 0) {
-                // Insert into equipment_history
-                $historyStmt = $pdo->prepare("
-                    INSERT INTO equipment_history 
-                    (equipment_id, po_jo_no, from_user_id, to_user_id, action_type, notes)
-                    VALUES
-                    (:equipment_id, :po_jo_no, :from_user_id, :to_user_id, 'transfer', :notes)
-                ");
+                $historyStmt = $pdo->prepare("INSERT INTO equipment_history (equipment_id, po_jo_no, from_user_id, to_user_id, action_type, notes) VALUES (:equipment_id, :po_jo_no, :from_user_id, :to_user_id, 'transfer', :notes)");
                 $historyStmt->execute([
                     'equipment_id' => $equipmentId,
                     'po_jo_no' => $poJoNo,
@@ -90,6 +78,12 @@ try {
                     'to_user_id' => $newOwnerId,
                     'notes' => "Transferred: " . $reason
                 ]);
+
+                $transferredEquipments[] = [
+                    'equipment_name' => $equipmentName,
+                    'po_jo_no' => $poJoNo,
+                    'property_number' => $propertyNumber
+                ];
 
                 $successCount++;
             } else {
@@ -101,6 +95,53 @@ try {
     }
 
     $pdo->commit();
+
+    // Fetch new owner's email and name
+    $userStmt = $pdo->prepare("SELECT email, first_name, last_name FROM users WHERE id = :id");
+    $userStmt->execute(['id' => $newOwnerId]);
+    $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user) {
+        $newOwnerEmail = $user['email'];
+        $newOwnerName = $user['first_name'] . ' ' . $user['last_name'];
+
+        // Send email
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'wmsuequipment@gmail.com';
+        $mail->Password = 'wjgsuitdayyvyosu';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
+
+        $mail->setFrom('wmsuequipment@gmail.com', 'WMSU Equipment Admin');
+        $mail->addAddress($newOwnerEmail, $newOwnerName);
+        $mail->isHTML(true);
+        $mail->Subject = 'Equipment Transferred to You';
+
+        $equipmentListHtml = "<ul>";
+        foreach ($transferredEquipments as $item) {
+            $equipmentListHtml .= "<li><strong>{$item['equipment_name']}</strong><br>PO/JO No: {$item['po_jo_no']}<br>Property #: {$item['property_number']}</li>";
+        }
+        $equipmentListHtml .= "</ul>";
+
+        $mail->Body = "
+            <p>Dear <strong>$newOwnerName</strong>,</p>
+            <p>The following equipment items have been transferred to you for the reason: <strong>$reason</strong>.</p>
+            $equipmentListHtml
+            <p>Please check your account for more details.</p>
+            <br><p>Best regards,<br>WMSU Equipment Admin</p>
+        ";
+
+        $mail->AltBody = "Dear $newOwnerName,\n\nThe following equipment items have been transferred to you:\n" .
+            implode("\n", array_map(fn($item) =>
+                "{$item['equipment_name']} - PO/JO No: {$item['po_jo_no']}, Property #: {$item['property_number']}",
+                $transferredEquipments)) .
+            "\n\nPlease check your account.\n\nWMSU Equipment Admin";
+
+        $mail->send();
+    }
 
     echo json_encode([
         'success' => true,
@@ -114,4 +155,3 @@ try {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);
 }
-?>

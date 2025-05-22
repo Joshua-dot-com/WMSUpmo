@@ -566,107 +566,105 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </div>
 
 <script>
- document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("search-equipment")
-  const categoryFilter = document.getElementById("category-filter")
-  const statusFilter = document.getElementById("status-filter")
-  const resetBtn = document.getElementById("reset-filters")
-  const tableBody = document.getElementById("equipment-list-body")
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("search-equipment");
+  const categoryFilter = document.getElementById("category-filter");
+  const statusFilter = document.getElementById("status-filter");
+  const resetBtn = document.getElementById("reset-filters");
+  const tableBody = document.getElementById("equipment-list-body");
 
-  let equipmentData = []
+  let equipmentData = [];
 
-  // Fix the data structure handling in fetchEquipmentData function
-  function fetchEquipmentData() {
+  function fetchCategories() {
     fetch("get-equipment-category.php")
       .then((res) => res.json())
-      .then((response) => {
-        // Check if the response has the expected structure with data property
-        if (response.data && Array.isArray(response.data)) {
-          equipmentData = response.data
-        } else if (Array.isArray(response)) {
-          equipmentData = response
-        } else {
-          console.error("Unexpected API response format:", response)
-          equipmentData = []
-        }
-
-        populateCategoryFilter(equipmentData)
-        renderTable()
+      .then((categories) => {
+        populateCategoryFilter(categories);
       })
       .catch((err) => {
-        console.error("Error fetching equipment data:", err)
-        equipmentData = []
-        renderTable() // Still render the table to show error state
+        console.error("Error fetching categories:", err);
+      });
+  }
+
+  function fetchEquipmentData() {
+    fetch("get-equipment.php") // replace with your full equipment endpoint
+      .then((res) => res.json())
+      .then((response) => {
+        equipmentData = Array.isArray(response) ? response : [];
+        renderTable();
       })
+      .catch((err) => {
+        console.error("Error fetching equipment data:", err);
+        equipmentData = [];
+        renderTable(); // Still render to show "no data"
+      });
   }
 
-  function populateCategoryFilter(data) {
-    const categories = [...new Set(data.map((item) => item.category))]
-    categoryFilter.innerHTML = '<option value="">All Categories</option>' // reset
+  function populateCategoryFilter(categories) {
+    categoryFilter.innerHTML = '<option value="">All Categories</option>';
     categories.forEach((cat) => {
-      const option = document.createElement("option")
-      option.value = cat
-      option.textContent = cat
-      categoryFilter.appendChild(option)
-    })
+      const option = document.createElement("option");
+      option.value = cat;
+      option.textContent = cat;
+      categoryFilter.appendChild(option);
+    });
   }
 
-  // Fix the renderTable function to handle potential missing properties
   function renderTable() {
-    const searchTerm = searchInput.value.toLowerCase()
-    const selectedCategory = categoryFilter.value
-    const selectedStatus = statusFilter.value
+    const searchTerm = searchInput.value.toLowerCase();
+    const selectedCategory = categoryFilter.value;
+    const selectedStatus = statusFilter.value;
 
     const filtered = equipmentData.filter((item) => {
-      // Safely access properties with fallbacks for null/undefined values
-      const equipmentName = (item.name || "").toLowerCase()
-      const id = (item.id || "").toString()
-      const propertyNumber = (item.property_number || "").toLowerCase()
-      const category = item.category || ""
-      const status = item.status || ""
+      const equipmentName = (item.name || "").toLowerCase();
+      const id = (item.id || "").toString();
+      const propertyNumber = (item.property_number || "").toLowerCase();
+      const category = item.category || "";
+      const status = item.status || "";
 
       const matchesSearch =
-        equipmentName.includes(searchTerm) || id.includes(searchTerm) || propertyNumber.includes(searchTerm)
+        equipmentName.includes(searchTerm) ||
+        id.includes(searchTerm) ||
+        propertyNumber.includes(searchTerm);
 
-      const matchesCategory = selectedCategory ? category === selectedCategory : true
-      const matchesStatus = selectedStatus ? status === selectedStatus : true
+      const matchesCategory = selectedCategory ? category === selectedCategory : true;
+      const matchesStatus = selectedStatus ? status === selectedStatus : true;
 
-      return matchesSearch && matchesCategory && matchesStatus
-    })
+      return matchesSearch && matchesCategory && matchesStatus;
+    });
 
     tableBody.innerHTML = filtered.length
       ? filtered
           .map(
             (item) => `
-    <tr>
-      <td class="p-3">${item.property_number || ""}</td>
-      <td class="p-3">${item.name || ""}</td>
-      <td class="p-3">${item.category || ""}</td>
-      <td class="p-3">
-        <span class="status-badge inline-block px-3 py-1 rounded-full text-xs font-semibold mt-4 uppercase tracking-wide shadow-sm transition-colors duration-200">
-          ${item.status || "Unknown"}
-        </span>
-      </td>
-      <td class="p-3">
-        <button class="text-blue-500 p-2 rounded-full hover:bg-blue-100 transition-colors duration-150" onclick="viewEquipmentDetails(${item.id})">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12H12m-8.25 5.25h16.5" />
-          </svg>
-        </button>
-      </td>
-    </tr>
-  `,
+      <tr>
+        <td class="p-3">${item.property_number || ""}</td>
+        <td class="p-3">${item.name || ""}</td>
+        <td class="p-3">${item.category || ""}</td>
+        <td class="p-3">
+          <span class="status-badge inline-block px-3 py-1 rounded-full text-xs font-semibold mt-4 uppercase tracking-wide shadow-sm transition-colors duration-200">
+            ${item.status || "Unknown"}
+          </span>
+        </td>
+        <td class="p-3">
+          <button class="text-blue-500 p-2 rounded-full hover:bg-blue-100 transition-colors duration-150" onclick="viewEquipmentDetails(${item.id})">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12H12m-8.25 5.25h16.5" />
+            </svg>
+          </button>
+        </td>
+      </tr>
+    `
           )
           .join("")
       : `
-    <tr>
-      <td colspan="5" class="text-center py-6 text-gray-500">No equipment found.</td>
-    </tr>
-  `
+      <tr>
+        <td colspan="5" class="text-center py-6 text-gray-500">No equipment found.</td>
+      </tr>
+    `;
 
-    // Update the colors of status badges dynamically
     document.querySelectorAll(".status-badge").forEach((badge) => {
-      const status = badge.textContent.trim()
+      const status = badge.textContent.trim();
       badge.classList.remove(
         "bg-green-100",
         "text-green-800",
@@ -675,56 +673,58 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         "bg-red-100",
         "text-red-800",
         "bg-orange-100",
-        "text-orange-800",
-      )
+        "text-orange-800"
+      );
 
       if (status === "Active") {
-        badge.classList.add("bg-green-100", "text-green-800")
+        badge.classList.add("bg-green-100", "text-green-800");
       } else if (status === "Under Repair") {
-        badge.classList.add("bg-orange-100", "text-orange-800")
+        badge.classList.add("bg-orange-100", "text-orange-800");
       } else if (status === "Maintenance") {
-        badge.classList.add("bg-yellow-100", "text-yellow-800")
+        badge.classList.add("bg-yellow-100", "text-yellow-800");
       } else if (status === "Retired") {
-        badge.classList.add("bg-red-100", "text-red-800")
+        badge.classList.add("bg-red-100", "text-red-800");
       } else {
-        badge.classList.add("bg-gray-100", "text-gray-800") // Default for unknown status
+        badge.classList.add("bg-gray-100", "text-gray-800");
       }
-    })
+    });
   }
 
-  searchInput.addEventListener("input", renderTable)
-  categoryFilter.addEventListener("change", renderTable)
-  statusFilter.addEventListener("change", renderTable)
+  searchInput.addEventListener("input", renderTable);
+  categoryFilter.addEventListener("change", renderTable);
+  statusFilter.addEventListener("change", renderTable);
   resetBtn.addEventListener("click", () => {
-    searchInput.value = ""
-    categoryFilter.value = ""
-    statusFilter.value = ""
-    renderTable()
-  })
+    searchInput.value = "";
+    categoryFilter.value = "";
+    statusFilter.value = "";
+    renderTable();
+  });
 
-  fetchEquipmentData()
+  fetchCategories();
+  fetchEquipmentData();
 
-  // Add inline colors to status filter options
-  const statusOptions = statusFilter.querySelectorAll("option")
+  // Inline color for status dropdown
+  const statusOptions = statusFilter.querySelectorAll("option");
   statusOptions.forEach((option) => {
     switch (option.value) {
       case "Active":
-        option.style.color = "green"
-        break
+        option.style.color = "green";
+        break;
       case "Under Repair":
-        option.style.color = "orange"
-        break
+        option.style.color = "orange";
+        break;
       case "Maintenance":
-        option.style.color = "yellow"
-        break
+        option.style.color = "goldenrod";
+        break;
       case "Retired":
-        option.style.color = "red"
-        break
+        option.style.color = "red";
+        break;
       default:
-        option.style.color = "black"
+        option.style.color = "black";
     }
-  })
-})
+  });
+});
+
 
 // Define the function globally so that it's accessible outside of the DOMContentLoaded block
 window.closeEquipmentModal = () => {
@@ -1133,9 +1133,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <tr>
             <td colspan="4" class="p-4 text-center text-red-500">
               Error loading data. Please try refreshing the page.
-            </td>
-          </tr>
-        `
+            </tr>
+          `
       })
   }
 
@@ -1309,6 +1308,9 @@ function viewEquipmentDetails(id) {
 
 // View equipment details function
 window.viewEquipmentDetails = (equipmentId) => {
+  // Log the ID to verify we're getting the correct ID
+  console.log("Viewing equipment with ID:", equipmentId);
+  
   // Show loading overlay
   const loadingOverlay = document.createElement("div")
   loadingOverlay.id = "equipmentDetailsLoading"
@@ -1324,37 +1326,56 @@ window.viewEquipmentDetails = (equipmentId) => {
   `
   document.body.appendChild(loadingOverlay)
 
-  fetch(`get_equipment_details.php?id=${equipmentId}`)
-    .then((res) => res.json())
-    .then((data) => {
-      // Remove loading overlay
-      document.getElementById("equipmentDetailsLoading").remove()
+fetch(`get_equipment_details.php?id=${equipmentId}`)
+  .then((res) => res.json())
+  .then((data) => {
+    // Remove loading overlay
+    document.getElementById("equipmentDetailsLoading").remove()
 
-      if (!data.success) {
-        showNotification("Failed to fetch equipment details: " + (data.message || "Unknown error"), "error")
+    if (!data.success) {
+      showNotification("Failed to fetch equipment details: " + (data.message || "Unknown error"), "error")
+      return
+    }
+
+    // Log the response to verify we're getting the correct data
+    console.log("Equipment details response:", data);
+
+    // Since the server is returning all equipment, we need to filter for the specific ID
+    let equipment;
+    
+    if (Array.isArray(data.data)) {
+      // Find the specific equipment with matching ID
+      equipment = data.data.find(item => item.id == equipmentId);
+      
+      if (!equipment) {
+        showNotification("Equipment with ID " + equipmentId + " not found in the response", "error")
         return
       }
+      
+      console.log("Found equipment:", equipment);
+    } else {
+      // If it's not an array, use the data as is (assuming it's the correct equipment)
+      equipment = data.data;
+    }
 
-      const equipment = data.data[0]
-
-      // Helper to escape HTML
-      function escapeHtml(str) {
-        if (!str) return "—"
-        return String(str).replace(
-          /[&<>"'`=/]/g,
-          (match) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#039;",
-              "`": "&#96;",
-              "=": "&#61;",
-              "/": "&#47;",
-            })[match],
-        )
-      }
+    // Helper to escape HTML
+    function escapeHtml(str) {
+      if (!str) return "—"
+      return String(str).replace(
+        /[&<>"'`=/]/g,
+        (match) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;",
+            "`": "&#96;",
+            "=": "&#61;",
+            "/": "&#47;",
+          })[match],
+      )
+    }
 
       // Convert newlines to <br>
       function nl2br(str) {
@@ -1605,8 +1626,8 @@ window.viewEquipmentDetails = (equipmentId) => {
       showNotification("An error occurred while fetching equipment details.", "error")
     })
 }
-
 </script>
+
 
 </body>
 </html>
